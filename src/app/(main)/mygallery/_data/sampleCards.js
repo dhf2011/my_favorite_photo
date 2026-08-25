@@ -24,7 +24,7 @@ export const sampleCards = [
   {
     id: 3,
     rarity: 'SUPER RARE',
-    category: '여행',
+    category: '음식',
     owner: '코드잇덕후',
     description: '스페인 여행',
     imageSrc: '/assets/products/photo-card-two.svg',
@@ -54,7 +54,7 @@ export const sampleCards = [
   {
     id: 6,
     rarity: 'RARE',
-    category: '여행',
+    category: '음식',
     owner: '미쓰손',
     description: '도쿄 야경',
     imageSrc: '/assets/products/photo-card-another.svg',
@@ -64,7 +64,7 @@ export const sampleCards = [
   {
     id: 7,
     rarity: 'COMMON',
-    category: '여행',
+    category: '음식',
     owner: '코드잇',
     description: '부산 바다',
     imageSrc: '/assets/products/photo-card-another.svg',
@@ -74,7 +74,7 @@ export const sampleCards = [
   {
     id: 8,
     rarity: 'SUPER RARE',
-    category: '여행',
+    category: '음식',
     owner: '코드잇덕후',
     description: '파리 에펠탑',
     imageSrc: '/assets/products/photo-card-two.svg',
@@ -116,7 +116,7 @@ export const sampleCards = [
   {
     id: 12,
     rarity: 'RARE',
-    category: '여행',
+    category: '음식',
     owner: '코드잇',
     description: '이탈리아 골목',
     imageSrc: '/assets/products/photo-card-another.svg',
@@ -126,7 +126,7 @@ export const sampleCards = [
   {
     id: 13,
     rarity: 'SUPER RARE',
-    category: '여행',
+    category: '음식',
     owner: '미쓰손',
     description: '뉴욕 타임스퀘어',
     imageSrc: '/assets/products/photo-card-two.svg',
@@ -156,7 +156,7 @@ export const sampleCards = [
   {
     id: 16,
     rarity: 'SUPER RARE',
-    category: '여행',
+    category: '음식',
     owner: '코드잇덕후',
     description: '아이슬란드 빙하',
     imageSrc: '/assets/products/photo-card-two.svg',
@@ -166,7 +166,7 @@ export const sampleCards = [
   {
     id: 17,
     rarity: 'COMMON',
-    category: '여행',
+    category: '음식',
     owner: '코드잇',
     description: '제주 오름',
     imageSrc: '/assets/products/photo-card-another.svg',
@@ -208,7 +208,7 @@ export const sampleCards = [
   {
     id: 21,
     rarity: 'RARE',
-    category: '여행',
+    category: '음식',
     owner: '코드잇덕후',
     description: '런던 브릿지',
     imageSrc: '/assets/products/photo-card-another.svg',
@@ -228,7 +228,7 @@ export const sampleCards = [
   {
     id: 23,
     rarity: 'COMMON',
-    category: '여행',
+    category: '음식',
     owner: '코드잇',
     description: '강릉 바다',
     imageSrc: '/assets/products/photo-card-another.svg',
@@ -248,7 +248,7 @@ export const sampleCards = [
   {
     id: 25,
     rarity: 'LEGENDARY',
-    category: '여행',
+    category: '음식',
     owner: '코드잇덕후',
     description: '마추픽추',
     imageSrc: '/assets/products/photo-card-soldout.svg',
@@ -268,7 +268,7 @@ export const sampleCards = [
   {
     id: 27,
     rarity: 'RARE',
-    category: '여행',
+    category: '음식',
     owner: '미쓰손',
     description: '베를린 거리',
     imageSrc: '/assets/products/photo-card-another.svg',
@@ -288,7 +288,7 @@ export const sampleCards = [
   {
     id: 29,
     rarity: 'COMMON',
-    category: '여행',
+    category: '음식',
     owner: '코드잇',
     description: '산토리니 해변',
     imageSrc: '/assets/products/photo-card-another.svg',
@@ -318,7 +318,7 @@ export const sampleCards = [
   {
     id: 32,
     rarity: 'RARE',
-    category: '여행',
+    category: '음식',
     owner: '코드잇',
     description: '리스본 트램',
     imageSrc: '/assets/products/photo-card-another.svg',
@@ -338,7 +338,7 @@ export const sampleCards = [
   {
     id: 34,
     rarity: 'COMMON',
-    category: '여행',
+    category: '음식',
     owner: '미쓰손',
     description: '남해 바닷길',
     imageSrc: '/assets/products/photo-card-another.svg',
@@ -368,7 +368,7 @@ export const sampleCards = [
   {
     id: 37,
     rarity: 'SUPER RARE',
-    category: '여행',
+    category: '음식',
     owner: '코드잇덕후',
     description: '사하라 사막 일몰',
     imageSrc: '/assets/products/photo-card-two.svg',
@@ -388,7 +388,7 @@ export const sampleCards = [
   {
     id: 39,
     rarity: 'RARE',
-    category: '여행',
+    category: '음식',
     owner: '미쓰손',
     description: '프라하 구시가지',
     imageSrc: '/assets/products/photo-card-another.svg',
@@ -398,7 +398,7 @@ export const sampleCards = [
   {
     id: 40,
     rarity: 'LEGENDARY',
-    category: '여행',
+    category: '음식',
     owner: '코드잇덕후',
     description: '남극 빙산',
     imageSrc: '/assets/products/photo-card-soldout.svg',

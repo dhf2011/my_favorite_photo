@@ -25,7 +25,7 @@ export const sampleCards = [
   {
     id: 3,
     rarity: 'SUPER RARE',
-    category: '여행',
+    category: '음식',
     owner: '코드잇덕후',
     description: '스페인 여행',
     price: '4 P',
@@ -47,7 +47,7 @@ export const sampleCards = [
   {
     id: 5,
     rarity: 'SUPER RARE',
-    category: '여행',
+    category: '음식',
     owner: '코드잇덕후',
     description: '스페인 여행',
     price: '4 P',
@@ -69,7 +69,7 @@ export const sampleCards = [
   {
     id: 7,
     rarity: 'SUPER RARE',
-    category: '여행',
+    category: '음식',
     owner: '미쓰손',
     description: '스페인 여행',
     price: '4 P',
@@ -124,7 +124,7 @@ export const sampleCards = [
   {
     id: 12,
     rarity: 'SUPER RARE',
-    category: '여행',
+    category: '음식',
     owner: '코드잇덕후',
     description: '스페인 여행',
     price: '4 P',
@@ -146,7 +146,7 @@ export const sampleCards = [
   {
     id: 14,
     rarity: 'SUPER RARE',
-    category: '여행',
+    category: '음식',
     owner: '코드잇덕후',
     description: '스페인 여행',
     price: '4 P',

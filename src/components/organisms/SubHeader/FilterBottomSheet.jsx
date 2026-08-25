@@ -6,13 +6,7 @@ import Modal from '@/components/atoms/Modal/Modal';
 import { ButtonPrimary, ButtonSecondary, ResponsiveButton } from '@/components/atoms/Button';
 import styles from './FilterBottomSheet.module.css';
 
-const GENRE_OPTIONS = [
-  { value: 'all', label: '전체' },
-  { value: '풍경', label: '풍경' },
-  { value: '여행', label: '여행' },
-  { value: '인물', label: '인물' },
-  { value: '동물', label: '동물' },
-];
+const GENRE_VALUES = ['풍경', '음식', '인물', '동물'];
 
 const SOLD_OPTIONS = [
   { value: 'all', label: '전체' },
@@ -36,9 +30,9 @@ function countByGrade(cards) {
 }
 
 function countByGenre(cards) {
-  const map = {};
+  const map = Object.fromEntries(GENRE_VALUES.map((g) => [g, 0]));
   cards.forEach((c) => {
-    map[c.category] = (map[c.category] || 0) + 1;
+    if (map[c.category] !== undefined) map[c.category]++;
   });
   return map;
 }
@@ -116,7 +110,11 @@ export default function FilterBottomSheet({
 
   const genreOptionsWithCount = [
     { value: 'all', label: '전체', count: cards.length },
-    ...Object.entries(genreCounts).map(([value, count]) => ({ value, label: value, count })),
+    ...GENRE_VALUES.map((value) => ({
+      value,
+      label: value,
+      count: genreCounts[value] ?? 0,
+    })),
   ];
 
   const soldOptionsWithCount = [
