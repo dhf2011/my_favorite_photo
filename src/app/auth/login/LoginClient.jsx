@@ -32,8 +32,8 @@ export default function LoginClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('test0202@naver.com');
+  const [password, setPassword] = useState('12345678');
 
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
