@@ -72,97 +72,124 @@
   max-width: 160px;
 }
 
-/* Mobile (<= 499px): 하단 고정 판매 버튼 */
+/* Mobile (<= 499px): 하단 고정 버튼 */
 .fixedBottom {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   z-index: 100;
-  padding: 12px 20px;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
   background: #000;
   box-sizing: border-box;
   display: flex;
-  justify-content: center;
+  justify-content: stretch;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.actionBtnFixed {
+  flex: 1 1 0;
+  width: 100%;
+  min-width: 0;
+  height: 56px !important;
+  padding: 0 8px !important;
+  font-size: 14px !important;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-sizing: border-box;
+  cursor: pointer;
+  pointer-events: auto;
+  background: #efff04 !important;
+  border: 2px solid #efff04 !important;
+  color: #000 !important;
+  border-radius: 2px;
+}
+
+.actionBtnFixed:hover:not(:disabled) {
+  background: #d4e000 !important;
+  border-color: #d4e000 !important;
+}
+
+/* 헤더 액션 버튼 — 마이갤러리 생성 버튼과 동일한 노란 Primary */
+.headerActions {
+  display: flex;
   align-items: center;
-}
-
-.sellBtnFixed {
-  max-width: 100%;
-}
-
-/* Mobile: yellow sell button in fixed bottom */
-@media (max-width: 499px) {
-  .fixedBottom .sellBtnFixed :global(button) {
-    background-color: #ffff00 !important;
-    color: #000000 !important;
-    border: none;
-  }
-}
-
-/* 판매 버튼: 포토카드 컴포넌트 너비(430px)와 동일하게 제한 */
-.sellBtnWrap {
+  gap: 12px;
+  position: relative;
+  z-index: 2;
   flex-shrink: 0;
 }
-.sellBtn {
-  background: #ffff00;
-  width: 430px;
-  max-width: 430px;
+
+.actionBtn {
+  width: 220px;
+  min-width: 220px;
+  height: 60px !important;
+  padding: 0 12px !important;
+  font-size: 16px !important;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
   box-sizing: border-box;
-}
-/* 500~800px: 버튼 70% 크기(301px), 화면 벗어나지 않도록 max-width: 100% */
-@media (max-width: 800px) and (min-width: 500px) {
-  .sellBtnWrap {
-    flex-shrink: 1;
-    min-width: 0;
-    max-width: 100%;
-  }
-  .sellBtn {
-    width: 301px; /* 430 * 0.7 */
-    max-width: 100%;
-    box-sizing: border-box;
-  }
+  cursor: pointer;
+  pointer-events: auto;
+  position: relative;
+  z-index: 2;
+  background: #efff04 !important;
+  border: 2px solid #efff04 !important;
+  color: #000 !important;
+  border-radius: 2px;
 }
 
-/* Tablet: sell button font color black */
-@media (min-width: 500px) and (max-width: 1199px) {
-  .sellBtn :global(button) {
-    color: #000000 !important;
-  }
+.actionBtn:hover:not(:disabled) {
+  background: #d4e000 !important;
+  border-color: #d4e000 !important;
 }
 
-/* Title과 버튼 행: 500px 이상에서 같은 줄, wrap 방지 */
+.actionBtn:active:not(:disabled),
+.actionBtnFixed:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+/* Title과 버튼 행 */
 .titleButtonRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: nowrap;
   min-width: 0;
-  gap: 8px;
-}
-.titleButtonRow .titleWrap {
-  flex-shrink: 0;
-}
-.titleButtonRow .sellBtnWrap {
-  flex-shrink: 0;
-}
-/* 500~800px: 버튼 영역은 줄어들 수 있게 */
-@media (max-width: 800px) and (min-width: 500px) {
-  .titleButtonRow .sellBtnWrap {
-    flex-shrink: 1;
-    min-width: 0;
-  }
+  gap: 16px;
 }
 
-/* 마켓플레이스 Title: 500~800px 구간에서 70% 크기 */
 .titleWrap {
   display: inline-block;
   white-space: nowrap;
+  flex-shrink: 1;
+  min-width: 0;
 }
-@media (max-width: 800px) and (min-width: 500px) {
-  .titleWrap {
-    transform: scale(0.7);
-    transform-origin: left center;
+
+.titleButtonRow .headerActions {
+  flex-shrink: 0;
+}
+
+@media (max-width: 1100px) and (min-width: 500px) {
+  .titleButtonRow {
+    flex-wrap: wrap;
+    row-gap: 16px;
+  }
+
+  .headerActions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .actionBtn {
+    width: 200px;
+    min-width: 0;
+    flex: 0 1 200px;
+    height: 56px !important;
+    font-size: 14px !important;
   }
 }
 

@@ -20,7 +20,7 @@ export default function CardBuyer({
   rarity = 'COMMON',
   category = '풍경',
   owner = '미쓰손',
-  description = '우리집 앞마당 포토카드입니다. 우리집 앞마당 포토카드입니다. 우리집 앞마당 포토카드입니다.',
+  description = '우리집 앞마당 포토카드입니다.',
   price = '4 P',
   remaining = '2 / 5',
   quantity = 2,
@@ -66,14 +66,21 @@ export default function CardBuyer({
             <span className={styles.separator}>|</span>
             <span className={styles.category}>{category}</span>
           </div>
-          <span className={styles.owner}>{owner}</span>
         </div>
 
         {/* Description */}
         <div className={styles.description}>{description}</div>
 
-        {/* Price and Remaining */}
+        {/* Seller, Price and Remaining */}
         <div className={styles.infoRow}>
+          {hasValue(owner) && (
+            <div className={styles.infoItem}>
+              <Label>판매자 :</Label>
+              <div className={styles.infoValue}>
+                <span className={styles.sellerName}>{owner}</span>
+              </div>
+            </div>
+          )}
           <div className={styles.infoItem}>
             <Label>가격</Label>
             <div className={styles.infoValue}>{price}</div>

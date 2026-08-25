@@ -84,12 +84,15 @@ export default function OpenModal({ open, onClose, cardData, mode = 'edit', onSe
           {/* 1. Photo first, then Details below (stacked) */}
           <div className={styles.photoAndDetailsSection}>
             <div className={styles.photoSection}>
-              <Image
+              <img
                 src={cardData?.imageSrc || '/assets/products/photo-card.svg'}
                 alt={cardData?.title || '포토카드'}
                 width={480}
                 height={360}
                 className={styles.photoImage}
+                onError={(e) => {
+                  e.currentTarget.src = '/assets/products/photo-card.svg';
+                }}
               />
             </div>
             <div className={styles.detailsSection}>

@@ -11,6 +11,7 @@ import MyGalleryFilterBar from '../_components/MyGalleryFilterBar';
 import MyGalleryMobileHeader from '../_components/MyGalleryMobileHeader';
 import { useMyGalleryCount } from '../_components/MyGalleryCountContext';
 import { API_BASE } from '@/lib/http/baseUrl';
+import { normalizeImageUrl } from '@/utils/imageUrl';
 
 import styles from './page.module.css';
 
@@ -31,8 +32,6 @@ export default function MyGallerySellingPage() {
 
   const { setOwnedCount, setTitle } = useMyGalleryCount();
 
-  const ORIGIN_BASE = useMemo(() => API_BASE.replace(/\/api$/, ''), []);
-
   // ✅ filters
   const [search, setSearch] = useState('');
   const [grade, setGrade] = useState('ALL');
@@ -49,22 +48,6 @@ export default function MyGallerySellingPage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
-  const [meId, setMeId] = useState(null);
-
-  // ✅ 이미지 URL 정규화: /public 제거 + ORIGIN_BASE 붙이기
-  const normalizeImageUrl = useCallback(
-    (url) => {
-      if (!url) return null;
-      let u = String(url);
-
-      if (u.startsWith('/public/')) u = u.replace('/public', '');
-      if (u.startsWith('/')) return ORIGIN_BASE ? `${ORIGIN_BASE}${u}` : u;
-
-      return u;
-    },
-    [ORIGIN_BASE],
-  );
 
   /**
    * ✅ Listing 응답 → CardOriginal props 로 변환
@@ -107,34 +90,18 @@ export default function MyGallerySellingPage() {
         sellerUserId,
       };
     },
-    [normalizeImageUrl],
+    [],
   );
 
-  // ✅ me 조회
-  useEffect(() => {
-    (async () => {
-      try {
-        if (!API_BASE) return;
-        const res = await fetch(`${API_BASE}/users/me`, { credentials: 'include' });
-        if (!res.ok) return;
-        const json = await res.json();
-        const me = json?.data?.user ?? json?.user ?? null;
-        if (me?.id != null) setMeId(me.id);
-      } catch {
-        // ignore
-      }
-    })();
-  }, [API_BASE]);
-
-  // ✅ soldOut → statusParam
+  // ✅ soldOut → BE status (ALL이면 빈 값으로 상태 필터를 끄고 내 리스팅 전체 조회)
   const statusParam = useMemo(() => {
     if (soldOut === 'SOLD_OUT') return 'SOLD_OUT';
     if (soldOut === 'ON_SALE') return 'ACTIVE';
-    return null;
+    return '';
   }, [soldOut]);
 
   const fetchListings = useCallback(
-    async (cursorOverride = null, append = false) => {
+    async (cursor = null, append = false) => {
       try {
         setLoading(true);
         setError('');
@@ -143,16 +110,17 @@ export default function MyGallerySellingPage() {
 
         const qs = new URLSearchParams();
         qs.set('limit', String(LISTINGS_LIMIT));
+        qs.set('status', statusParam);
+        if (cursor != null) qs.set('cursor', String(cursor));
 
-        if (meId != null) qs.set('sellerUserId', String(meId));
-        if (statusParam) qs.set('status', statusParam);
+        const res = await fetch(`${API_BASE}/users/me/listings?${qs.toString()}`, {
+          credentials: 'include',
+        });
 
-        const cursorToUse = cursorOverride !== undefined ? cursorOverride : nextCursor;
-        if (cursorToUse) qs.set('cursor', String(cursorToUse));
-
-        const url = `${API_BASE}/api/listings?${qs.toString()}`;
-
-        const res = await fetch(url, { credentials: 'include' });
+        if (res.status === 401) {
+          router.replace(`/auth/login?redirect=${encodeURIComponent('/mygallery/selling-card')}`);
+          return;
+        }
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         const json = await res.json();
@@ -170,7 +138,7 @@ export default function MyGallerySellingPage() {
         setLoading(false);
       }
     },
-    [API_BASE, meId, statusParam, nextCursor, listingToCard],
+    [API_BASE, statusParam, listingToCard, router],
   );
 
   // ✅ 타이틀
@@ -178,14 +146,12 @@ export default function MyGallerySellingPage() {
     setTitle?.('나의 판매 포토카드');
   }, [setTitle]);
 
-  // ✅ meId 준비되면 로딩
   useEffect(() => {
-    if (meId == null) return;
     setListings([]);
     setNextCursor(null);
     setPage(1);
     fetchListings(null, false);
-  }, [meId, statusParam, fetchListings]);
+  }, [statusParam, fetchListings]);
 
   // ✅ FE 필터
   const filteredCards = useMemo(() => {
@@ -234,7 +200,7 @@ export default function MyGallerySellingPage() {
   useEffect(() => {
     const need = page * PAGE_SIZE;
     if (filteredCards.length < need && nextCursor && !loading) {
-      fetchListings(undefined, true);
+      fetchListings(nextCursor, true);
     }
   }, [page, filteredCards.length, nextCursor, loading, fetchListings]);
 

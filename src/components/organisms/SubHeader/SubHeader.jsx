@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import Title from '@/components/atoms/Title/Title';
-import { ButtonPrimary, ButtonSecondary, ResponsiveButton } from '@/components/atoms/Button';
+import { ButtonPrimary } from '@/components/atoms/Button';
 import DropDown from '@/components/atoms/DropDown/DropDown';
 import InputSearch from '@/components/molecules/InputSearch/InputSearch';
 import FilterBottomSheet from './FilterBottomSheet';
@@ -11,6 +11,7 @@ import styles from './SubHeader.module.css';
 
 export default function SubHeader({
   onSellClick,
+  onCreateClick,
   filters: controlledFilters,
   onFiltersChange,
   cards = [],
@@ -93,10 +94,23 @@ export default function SubHeader({
             <div className={styles.titleWrap}>
               <Title text="마켓플레이스" as="h1" showLine={false} />
             </div>
-            <div className={styles.sellBtnWrap}>
-              <ResponsiveButton onClick={onSellClick} className={styles.sellBtn}>
+            <div className={styles.headerActions}>
+              <ButtonPrimary
+                size="l"
+                thickness="thick"
+                className={styles.actionBtn}
+                onClick={onSellClick}
+              >
                 나의 포토카드 판매하기
-              </ResponsiveButton>
+              </ButtonPrimary>
+              <ButtonPrimary
+                size="l"
+                thickness="thick"
+                className={styles.actionBtn}
+                onClick={onCreateClick}
+              >
+                포토카드 생성하기
+              </ButtonPrimary>
             </div>
           </div>
           <div
@@ -190,9 +204,22 @@ export default function SubHeader({
           </div>
         </div>
         <div className={styles.fixedBottom}>
-          <ResponsiveButton onClick={onSellClick} className={styles.sellBtnFixed}>
+          <ButtonPrimary
+            size="l"
+            thickness="thick"
+            className={styles.actionBtnFixed}
+            onClick={onSellClick}
+          >
             나의 포토카드 판매하기
-          </ResponsiveButton>
+          </ButtonPrimary>
+          <ButtonPrimary
+            size="l"
+            thickness="thick"
+            className={styles.actionBtnFixed}
+            onClick={onCreateClick}
+          >
+            포토카드 생성하기
+          </ButtonPrimary>
         </div>
       </div>
 

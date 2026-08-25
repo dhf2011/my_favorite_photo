@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 
 import MyCardDetail from '@/components/organisms/MyCardDetail/MyCardDetail';
@@ -28,6 +28,7 @@ export default function CardSellingForm({ cardData, onBack, onSuccess, isInModal
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const submittingRef = useRef(false);
 
   /* =========================
      EFFECTS
@@ -52,9 +53,9 @@ export default function CardSellingForm({ cardData, onBack, onSuccess, isInModal
   };
 
   const handleSave = async () => {
-    if (!cardData) return;
+    if (!cardData || submittingRef.current) return;
 
-    const userCardId = cardData.user_card_id ?? cardData.id;
+    const userCardId = cardData.userCardId ?? cardData.user_card_id ?? cardData.id;
     if (!userCardId) {
       setSubmitError('카드 정보를 찾을 수 없습니다.');
       return;
@@ -72,6 +73,7 @@ export default function CardSellingForm({ cardData, onBack, onSuccess, isInModal
       return;
     }
 
+    submittingRef.current = true;
     setSubmitError(null);
     setIsSubmitting(true);
     try {
@@ -103,13 +105,14 @@ export default function CardSellingForm({ cardData, onBack, onSuccess, isInModal
         status === 401
           ? '로그인이 필요합니다.'
           : status === 409
-            ? '이미 판매게시판 카드입니다.'
+            ? '이미 판매 등록된 포토카드입니다.'
             : (err?.response?.data?.message ??
               err?.response?.data?.data?.message ??
               err?.message ??
               '판매 등록에 실패했습니다.');
       setSubmitError(msg);
     } finally {
+      submittingRef.current = false;
       setIsSubmitting(false);
     }
   };
@@ -168,12 +171,15 @@ export default function CardSellingForm({ cardData, onBack, onSuccess, isInModal
         <div className={styles.mainContentArea}>
           <div className={styles.leftColumn}>
             <div className={styles.photoSection}>
-              <Image
+              <img
                 src={cardData.imageSrc || '/assets/products/photo-card.svg'}
                 alt={cardData.title || '포토카드'}
                 width={480}
                 height={360}
                 className={styles.photoImage}
+                onError={(e) => {
+                  e.currentTarget.src = '/assets/products/photo-card.svg';
+                }}
               />
             </div>
           </div>

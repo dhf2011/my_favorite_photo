@@ -12,6 +12,7 @@ import CardExchangeModal from '@/components/organisms/CardExchangeModal';
 import MyCardExchangeCancel from '@/components/organisms/MyCard/MyCardExchangeCancel';
 import ExchangeFormContent from './exchange/ExchangeFormContent';
 import { http } from '@/lib/http/client';
+import { normalizeImageUrl } from '@/utils/imageUrl';
 import { sampleCards } from '../sampleCards';
 import styles from './page.module.css';
 import purchaseModalStyles from './PurchaseConfirmModal.module.css';
@@ -30,12 +31,11 @@ function hasValue(v) {
   return v != null && v !== '';
 }
 
-function normalizeImageSrc(src) {
-  if (!src || src === NO_DATA) return '';
-
-  if (src.includes('/public/')) return src.replace('/public/', '/');
-
-  return src;
+/** 제목은 카드 이름(name). 샘플 데이터는 description만 있는 경우가 있음 */
+function displayTitle(card) {
+  if (hasValue(card?.title) && card.title !== NO_DATA) return card.title;
+  if (hasValue(card?.description) && card.description !== NO_DATA) return card.description;
+  return '';
 }
 
 /** GET /api/listings/:id 응답을 페이지 cardData 형식으로 변환. 값이 없으면 NO_DATA. */
@@ -48,26 +48,21 @@ function listingToCardData(listing) {
     pricePerUnit != null && !Number.isNaN(Number(pricePerUnit))
       ? `${Number(pricePerUnit)} P`
       : NO_DATA;
-  const sellerUserId = listing?.sellerUserId;
-  const ownerDisplay =
-    sellerUserId != null && !Number.isNaN(Number(sellerUserId))
-      ? `판매자 #${sellerUserId}`
-      : NO_DATA;
+  const ownerName =
+    listing?.sellerNickname ?? listing?.seller_nickname ?? listing?.ownerNickname ?? listing?.owner;
+  const ownerDisplay = hasValue(ownerName) ? String(ownerName) : NO_DATA;
 
   return {
     id: hasValue(listing?.listingId) ? listing.listingId : NO_DATA,
     rarity: hasValue(pc?.grade) ? pc.grade : NO_DATA,
     category: hasValue(pc?.genre) ? pc.genre : NO_DATA,
     owner: ownerDisplay,
-    description: hasValue(pc?.description)
-      ? pc.description
-      : hasValue(pc?.name)
-        ? pc.name
-        : NO_DATA,
+    title: hasValue(pc?.name) ? pc.name : hasValue(pc?.title) ? pc.title : NO_DATA,
+    description: hasValue(pc?.description) ? pc.description : NO_DATA,
     price: priceStr,
     remaining: qty != null ? qty : NO_DATA,
     outof: qty != null ? qty : NO_DATA,
-    imageSrc: hasValue(pc?.imageUrl) ? normalizeImageSrc(pc.imageUrl) : NO_DATA,
+    imageSrc: hasValue(pc?.imageUrl) ? normalizeImageUrl(pc.imageUrl) : NO_DATA,
   };
 }
 
@@ -192,7 +187,7 @@ export default function MarketplaceCardPurchasePage() {
       secondRarity: 'RARE',
       secondCategory: '풍경',
       secondDescription: '푸릇푸릇한 여름 풍경, 눈 많이 내린 겨울 풍경 사진에 관심이 많습니다.',
-      title: cardData.description,
+      title: displayTitle(cardData),
       maxQuantity: cardData.remaining,
       initialQuantity: 1,
       grade: cardData.rarity,
@@ -240,7 +235,7 @@ export default function MarketplaceCardPurchasePage() {
       if (res.data?.ok && res.data?.data) {
         setIsPurchaseModalOpen(false);
         setQuantity(1);
-        await fetchListing();
+        router.push('/mygallery');
       } else {
         setPurchaseError(res.data?.error ?? '구매 처리에 실패했습니다.');
       }
@@ -390,16 +385,7 @@ export default function MarketplaceCardPurchasePage() {
             </Link>
           </div>
         ) : (
-          <div
-            className={styles.desktopLayout}
-            style={{
-              width: '100%',
-              maxWidth: '1280px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'flex-start',
-            }}
-          >
+          <div className={styles.desktopLayout}>
             {/* Right Main Content */}
             <div className={styles.rightMainContent}>
               {/* 1. Marketplace link above Card Title (desktop) */}
@@ -420,7 +406,7 @@ export default function MarketplaceCardPurchasePage() {
                     paddingBottom: '20px',
                   }}
                 >
-                  {cardData.description}
+                  {displayTitle(cardData)}
                 </h1>
               </div>
 
@@ -431,12 +417,15 @@ export default function MarketplaceCardPurchasePage() {
               <div className={styles.mainContentArea}>
                 {/* Left Column - Photo Card Image */}
                 <div className={styles.leftColumn}>
-                  <Image
+                  <img
                     src={mainImageSrc}
-                    alt={`${cardData.description} 포토카드`}
+                    alt={`${displayTitle(cardData) || '포토카드'} 포토카드`}
                     width={820}
                     height={620}
                     className={styles.cardImage}
+                    onError={(e) => {
+                      e.currentTarget.src = '/assets/products/photo-card.svg';
+                    }}
                   />
                 </div>
 
@@ -446,7 +435,13 @@ export default function MarketplaceCardPurchasePage() {
                     rarity={cardData.rarity}
                     category={cardData.category}
                     owner={cardData.owner}
-                    description={`${cardData.description} 포토카드입니다. ${cardData.description} 포토카드입니다. ${cardData.description} 포토카드입니다.`}
+                    description={
+                      cardData.description && cardData.description !== NO_DATA
+                        ? cardData.description
+                        : displayTitle(cardData)
+                          ? `${displayTitle(cardData)} 포토카드입니다.`
+                          : '포토카드입니다.'
+                    }
                     price={cardData.price}
                     remaining={`${cardData.remaining} / ${cardData.outof}`}
                     quantity={quantity}
@@ -569,7 +564,8 @@ export default function MarketplaceCardPurchasePage() {
         <div className={purchaseModalStyles.purchaseModalContainer}>
           <h2 className={purchaseModalStyles.title}>포토카드 구매</h2>
           <p className={purchaseModalStyles.message}>
-            [{cardData.rarity} | {cardData.description}] {quantity}장을 구매하시겠습니까?
+            [{cardData.rarity} | {displayTitle(cardData)}] {quantity}장을
+            구매하시겠습니까?
           </p>
           {purchaseError && (
             <p className={purchaseModalStyles.errorMessage} role="alert">

@@ -6,32 +6,10 @@ import SubHeader from '@/components/organisms/SubHeader/SubHeader';
 import CardOriginal from '@/components/organisms/CardOriginal/CardOriginal';
 import CardSellingListModal from '@/components/organisms/CardSellingListModal/CardSellingListModal';
 import { http } from '@/lib/http/client';
+import { normalizeImageUrl } from '@/utils/imageUrl';
 import styles from './page.module.css';
 
 const LISTINGS_LIMIT = 10;
-
-/* ============================
- * ✅ 이미지 URL 정규화 함수 (추가)
- * ============================ */
-function normalizeImageUrl(url) {
-  if (!url) return null;
-
-  let normalized = url;
-
-  // 1️⃣ "/public/xxx" → "/xxx"
-  if (normalized.startsWith('/public/')) {
-    normalized = normalized.replace('/public', '');
-  }
-
-  // 2️⃣ 상대경로면 백엔드 baseURL 붙이기
-  if (normalized.startsWith('/')) {
-    const base = process.env.NEXT_PUBLIC_API_BASE_URL;
-    if (base) return `${base}${normalized}`;
-  }
-
-  // 이미 https:// 로 시작하면 그대로
-  return normalized;
-}
 
 /**
  * API 리스팅 항목을 카드 표시용 객체로 변환
@@ -41,14 +19,14 @@ function listingToCard(item) {
   const quantity = Number(item?.quantity ?? 0);
   const pricePerUnit = item?.pricePerUnit ?? 0;
 
-  const imageSrc = normalizeImageUrl(pc?.imageUrl) || '/assets/products/photo-card.svg';
+  const imageSrc = normalizeImageUrl(pc?.imageUrl ?? pc?.image_url) || '/assets/products/photo-card.svg';
 
   return {
     id: item?.listingId,
     rarity: pc?.grade ?? 'COMMON',
     category: pc?.genre ?? '풍경',
     owner: item?.sellerNickname ?? '판매자',
-    description: pc?.description || pc?.name || '-',
+    description: pc?.name || pc?.title || '-',
     price: `${pricePerUnit} P`,
     remaining: quantity,
     outof: quantity,
@@ -161,6 +139,7 @@ export default function MarketplacePage() {
     <div className="w-full bg-black text-white">
       <SubHeader
         onSellClick={() => setIsSellingModalOpen(true)}
+        onCreateClick={() => router.push('/create-card')}
         filters={filters}
         onFiltersChange={setFilters}
         cards={listings}
@@ -194,6 +173,11 @@ export default function MarketplacePage() {
         onSellCardSelect={() => {
           setIsSellingModalOpen(false);
           router.push('/marketplace/sell');
+        }}
+        onSellSuccess={() => {
+          setIsSellingModalOpen(false);
+          fetchListings(null, false, filters);
+          router.push('/marketplace');
         }}
         sellerUserId={currentUser?.id}
       />

@@ -11,6 +11,7 @@ import MyGalleryFilterBar from './_components/MyGalleryFilterBar';
 import MyGalleryMobileHeader from './_components/MyGalleryMobileHeader';
 import { useMyGalleryCount } from './_components/MyGalleryCountContext';
 import { API_BASE } from '@/lib/http/baseUrl';
+import { normalizeImageUrl } from '@/utils/imageUrl';
 
 import styles from './page.module.css';
 
@@ -21,21 +22,6 @@ function normalizeGrade(v) {
   const g = String(v ?? '').toUpperCase();
   if (g === 'SUPER_RARE') return 'SUPER RARE';
   return g || 'COMMON';
-}
-
-// ✅ 이미지 URL 정규화: /public 제거 + 상대경로면 API_BASE 붙이기
-function normalizeImageUrl(url) {
-  if (!url) return null;
-  let u = String(url);
-
-  if (u.startsWith('/public/')) u = u.replace('/public', '');
-
-  if (u.startsWith('/')) {
-    if (!API_BASE) return u; // base 없으면 일단 상대경로 유지
-    return `${API_BASE}${u}`;
-  }
-
-  return u;
 }
 
 /** ✅ BE → CardOriginal props로 매핑 */

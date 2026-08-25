@@ -5,6 +5,7 @@ const gradeLabelMap = {
   common: 'COMMON',
   rare: 'RARE',
   epic: 'SUPER RARE',
+  superrare: 'SUPER RARE',
   legendary: 'LEGENDARY',
 };
 

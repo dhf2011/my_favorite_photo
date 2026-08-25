@@ -13,8 +13,6 @@ export default function MyCard({
   price = '4 P',
   quantity = 1,
   imageSrc = '/assets/products/photo-card-mycard.svg',
-  imageWidth = 400,
-  imageHeight = 400,
   onClick,
 }) {
   return (
@@ -25,12 +23,13 @@ export default function MyCard({
     >
       {/* Image Section */}
       <div className={styles.imageContainer}>
-        <Image
+        <img
           src={imageSrc}
           alt="Photo Card"
-          width={imageWidth}
-          height={imageHeight}
           className={styles.myCardImage}
+          onError={(e) => {
+            e.currentTarget.src = '/assets/products/photo-card.svg';
+          }}
         />
       </div>
 

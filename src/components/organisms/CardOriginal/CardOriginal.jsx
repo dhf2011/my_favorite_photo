@@ -48,7 +48,11 @@ export default function CardOriginal({
       {/* Image Section - link to detail when detailHref provided */}
       <div className={styles.imageContainer}>
         {detailHref ? (
-          <Link href={detailHref} onClick={(e) => e.stopPropagation()}>
+          <Link
+            href={detailHref}
+            className={styles.imageLink}
+            onClick={(e) => e.stopPropagation()}
+          >
             {imageNode}
           </Link>
         ) : (

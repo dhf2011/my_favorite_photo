@@ -33,11 +33,12 @@ export default function MarketplaceSellPage() {
     router.push('/marketplace');
   };
 
-  const handleSuccess = (payload) => {
+  const handleSuccess = () => {
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem(STORAGE_SELL_CARD);
+      sessionStorage.removeItem(STORAGE_SELL_SUCCESS);
     }
-    router.push('/marketplace/sell/success');
+    router.push('/marketplace');
   };
 
   if (!mounted || !cardData) {

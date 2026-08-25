@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
 import Modal from '@/components/atoms/Modal/Modal';
 import InputSearch from '@/components/molecules/InputSearch/InputSearch';
 import DropDown from '@/components/atoms/DropDown/DropDown';
@@ -11,6 +10,7 @@ import MarketplaceSellSuccessPage from '@/app/(main)/marketplace/sell/success/pa
 import CardSellingForm from '@/components/organisms/CardSellingForm/CardSellingForm';
 import SubHeaderExchange from '@/components/organisms/SubHeader/SubHeaderExchange';
 import { http } from '@/lib/http/client';
+import { normalizeImageUrl } from '@/utils/imageUrl';
 import styles from './CardSellingListModal.module.css';
 
 const STORAGE_SELL_CARD = 'marketplace_sell_card';
@@ -20,21 +20,40 @@ const STORAGE_SELL_CARD = 'marketplace_sell_card';
  * id = user_card_id so each row is distinct and we have user_card_id for creating listing
  */
 function userCardRowToCard(row) {
+  const userCardId = row?.user_card_id ?? row?.userCardId ?? row?.id;
+  const photoCardId =
+    row?.photo_card_id ?? row?.photoCardId ?? row?.photoCard?.photoCardId ?? row?.photoCard?.photo_card_id;
   const quantity = Number(row?.quantity ?? 0);
+  const name = row?.name ?? row?.photoCard?.name;
   return {
-    id: row?.user_card_id,
-    user_card_id: row?.user_card_id,
-    photo_card_id: row?.photo_card_id,
+    id: userCardId,
+    user_card_id: userCardId,
+    userCardId,
+    photo_card_id: photoCardId,
+    photoCardId,
     quantity,
-    rarity: row?.grade ?? 'COMMON',
-    category: row?.genre ?? '풍경',
+    maxQuantity: quantity,
+    initialQuantity: quantity > 0 ? 1 : 0,
+    rarity: row?.grade ?? row?.photoCard?.grade ?? 'COMMON',
+    category: row?.genre ?? row?.photoCard?.genre ?? '풍경',
     owner: '나',
-    description: row?.name ?? row?.description ?? '-',
-    price: `${row?.min_price ?? 0} P`,
-    imageSrc: row?.image_url || '/assets/products/photo-card.svg',
-    title: row?.name,
-    grade: row?.grade,
-    genre: row?.genre,
+    description: name ?? row?.description ?? '-',
+    price: `${row?.min_price ?? row?.minPrice ?? row?.photoCard?.minPrice ?? 0} P`,
+    imageSrc:
+      normalizeImageUrl(row?.imageUrl ?? row?.image_url ?? row?.photoCard?.imageUrl) ||
+      '/assets/products/photo-card.svg',
+    title: name,
+    grade: row?.grade ?? row?.photoCard?.grade,
+    genre: row?.genre ?? row?.photoCard?.genre,
+  };
+}
+
+function listingItemIds(item) {
+  return {
+    userCardId: Number(item?.userCardId ?? item?.user_card_id),
+    photoCardId: Number(
+      item?.photoCard?.photoCardId ?? item?.photoCard?.photo_card_id ?? item?.photo_card_id,
+    ),
   };
 }
 
@@ -44,10 +63,10 @@ export default function CardSellingListModal({
   modalTitle = '나의 포토카드 판매하기',
   onCardSelect,
   onSellCardSelect,
+  onSellSuccess,
   mode = 'sell',
   sellerUserId,
 }) {
-  const router = useRouter();
   const [search, setSearch] = useState('');
   const [grade, setGrade] = useState('all');
   const [genre, setGenre] = useState('all');
@@ -86,14 +105,38 @@ export default function CardSellingListModal({
     }
   }, [open]);
 
-  /** Fetch logged-in user's owned cards (user_card) for "나의 포토카드 판매하기" list */
+  /** 보유 카드 중 이미 판매 중인 카드는 제외 */
   const fetchMyCards = useCallback(async () => {
     setSellingListLoading(true);
     setSellingListError(null);
     try {
-      const res = await http.get('/users/me/cards');
-      const data = res.data?.data ?? [];
-      setSellingList(Array.isArray(data) ? data.map(userCardRowToCard) : []);
+      const [cardsRes, listingsRes] = await Promise.all([
+        http.get('/users/me/cards'),
+        http.get('/users/me/listings?status=ACTIVE&limit=50'),
+      ]);
+      const data = cardsRes.data?.data ?? [];
+      const listingPayload = listingsRes.data?.data;
+      const listingItems = Array.isArray(listingPayload)
+        ? listingPayload
+        : (listingPayload?.items ?? listingsRes.data?.items ?? []);
+
+      const listedUserCardIds = new Set();
+      const listedPhotoCardIds = new Set();
+      for (const item of listingItems) {
+        const { userCardId, photoCardId } = listingItemIds(item);
+        if (Number.isFinite(userCardId) && userCardId > 0) listedUserCardIds.add(userCardId);
+        if (Number.isFinite(photoCardId) && photoCardId > 0) listedPhotoCardIds.add(photoCardId);
+      }
+
+      const available = (Array.isArray(data) ? data.map(userCardRowToCard) : []).filter((card) => {
+        const userCardId = Number(card.user_card_id ?? card.userCardId ?? card.id);
+        const photoCardId = Number(card.photo_card_id ?? card.photoCardId);
+        if (Number.isFinite(userCardId) && listedUserCardIds.has(userCardId)) return false;
+        if (Number.isFinite(photoCardId) && listedPhotoCardIds.has(photoCardId)) return false;
+        return Number(card.quantity) > 0;
+      });
+
+      setSellingList(available);
     } catch (err) {
       const status = err?.response?.status;
       const message =
@@ -128,183 +171,8 @@ export default function CardSellingListModal({
     { value: '동물', label: '동물' },
   ];
 
-  // Sample card data (10 cards for 2 columns x 5 rows) - using 3 images
-  const imageSources = [
-    '/assets/products/photo-card-yard-with-woman.svg',
-    '/assets/products/photo-card-spain.svg',
-    '/assets/products/photo-card-tree-with-lake.svg',
-  ];
-
-  // API 미사용 시 폴백용 샘플 (sellerUserId 없을 때)
-  const sampleCards = useMemo(
-    () => [
-      {
-        id: 1,
-        rarity: 'RARE',
-        category: '풍경',
-        owner: '프로여행러',
-        description: '스페인 여행',
-        price: '4 P',
-        quantity: 1,
-        imageSrc: imageSources[1],
-        title: '스페인 여행',
-        maxQuantity: 3,
-        initialQuantity: 1,
-        grade: 'RARE',
-        genre: '풍경',
-        exchangeDescription: '',
-      },
-      {
-        id: 2,
-        rarity: 'COMMON',
-        category: '풍경',
-        owner: '미쓰손',
-        description: '우리집 앞마당',
-        price: '4 P',
-        quantity: 1,
-        imageSrc: imageSources[0],
-        title: '우리집 앞마당',
-        maxQuantity: 3,
-        initialQuantity: 1,
-        grade: 'COMMON',
-        genre: '풍경',
-        exchangeDescription: '',
-      },
-      {
-        id: 3,
-        rarity: 'SUPER RARE',
-        category: '풍경',
-        owner: '랍스타',
-        description: "How Far I'll Go",
-        price: '4 P',
-        quantity: 1,
-        imageSrc: imageSources[2],
-        title: "How Far I'll Go",
-        maxQuantity: 3,
-        initialQuantity: 1,
-        grade: 'SUPER RARE',
-        genre: '풍경',
-        exchangeDescription: '',
-      },
-      {
-        id: 4,
-        rarity: 'COMMON',
-        category: '풍경',
-        owner: '미쓰손',
-        description: '우리집 앞마당',
-        price: '4 P',
-        quantity: 1,
-        imageSrc: imageSources[0],
-        title: '우리집 앞마당',
-        maxQuantity: 3,
-        initialQuantity: 1,
-        grade: 'COMMON',
-        genre: '풍경',
-        exchangeDescription: '',
-      },
-      {
-        id: 5,
-        rarity: 'RARE',
-        category: '풍경',
-        owner: '프로여행러',
-        description: '스페인 여행',
-        price: '4 P',
-        quantity: 1,
-        imageSrc: imageSources[1],
-        title: '스페인 여행',
-        maxQuantity: 3,
-        initialQuantity: 1,
-        grade: 'RARE',
-        genre: '풍경',
-        exchangeDescription: '',
-      },
-      {
-        id: 6,
-        rarity: 'LEGENDARY',
-        category: '풍경',
-        owner: '미쓰손',
-        description: '우리집 앞마당',
-        price: '4 P',
-        quantity: 1,
-        imageSrc: imageSources[0],
-        title: '우리집 앞마당',
-        maxQuantity: 3,
-        initialQuantity: 1,
-        grade: 'LEGENDARY',
-        genre: '풍경',
-        exchangeDescription: '',
-      },
-      {
-        id: 7,
-        rarity: 'COMMON',
-        category: '풍경',
-        owner: '랍스타',
-        description: "How Far I'll Go",
-        price: '4 P',
-        quantity: 1,
-        imageSrc: imageSources[2],
-        title: "How Far I'll Go",
-        maxQuantity: 3,
-        initialQuantity: 1,
-        grade: 'COMMON',
-        genre: '풍경',
-        exchangeDescription: '',
-      },
-      {
-        id: 8,
-        rarity: 'SUPER RARE',
-        category: '풍경',
-        owner: '프로여행러',
-        description: '스페인 여행',
-        price: '4 P',
-        quantity: 1,
-        imageSrc: imageSources[1],
-        title: '스페인 여행',
-        maxQuantity: 3,
-        initialQuantity: 1,
-        grade: 'SUPER RARE',
-        genre: '풍경',
-        exchangeDescription: '',
-      },
-      {
-        id: 9,
-        rarity: 'RARE',
-        category: '풍경',
-        owner: '미쓰손',
-        description: '우리집 앞마당',
-        price: '4 P',
-        quantity: 1,
-        imageSrc: imageSources[0],
-        title: '우리집 앞마당',
-        maxQuantity: 3,
-        initialQuantity: 1,
-        grade: 'RARE',
-        genre: '풍경',
-        exchangeDescription: '',
-      },
-      {
-        id: 10,
-        rarity: 'COMMON',
-        category: '풍경',
-        owner: '랍스타',
-        description: "How Far I'll Go",
-        price: '4 P',
-        quantity: 1,
-        imageSrc: imageSources[2],
-        title: "How Far I'll Go",
-        maxQuantity: 3,
-        initialQuantity: 1,
-        grade: 'COMMON',
-        genre: '풍경',
-        exchangeDescription: '',
-      },
-    ],
-    [],
-  );
-
-  const cardsFromApi = sellingList.length > 0 ? sellingList : sellingListError ? [] : sampleCards;
   const filteredCards = useMemo(() => {
-    let list = cardsFromApi;
+    let list = sellingList;
     if (grade && grade !== 'all')
       list = list.filter((c) => c.grade === grade || c.rarity === grade);
     if (genre && genre !== 'all')
@@ -319,7 +187,7 @@ export default function CardSellingListModal({
       );
     }
     return list;
-  }, [cardsFromApi, grade, genre, search]);
+  }, [sellingList, grade, genre, search]);
 
   const handleCardClick = (card) => {
     if (mode === 'exchange' && onCardSelect) {
@@ -356,8 +224,13 @@ export default function CardSellingListModal({
   const handleSellFormSuccess = (payload) => {
     setShowSellForm(false);
     setSellFormCardData(null);
+    if (onSellSuccess) {
+      onSellSuccess(payload);
+      return;
+    }
     setSoldCardData(payload);
     setIsSellSuccessModalOpen(true);
+    fetchMyCards();
   };
 
   return (
@@ -463,7 +336,7 @@ export default function CardSellingListModal({
             {!sellingListLoading && !sellingListError && (
               <div className={styles.cardsGrid}>
                 {filteredCards.length === 0 ? (
-                  <div className={styles.emptyState}>등록된 카드가 없습니다.</div>
+                  <div className={styles.emptyState}>판매할 수 있는 포토카드가 없습니다.</div>
                 ) : (
                   filteredCards.map((card) => (
                     <div key={card.id} className={styles.cardItem}>
@@ -501,6 +374,10 @@ export default function CardSellingListModal({
           // Close OpenModal and show success modal
           setIsOpenModalOpen(false);
           setSelectedCard(null);
+          if (onSellSuccess) {
+            onSellSuccess();
+            return;
+          }
           setIsSellSuccessModalOpen(true);
         }}
       />

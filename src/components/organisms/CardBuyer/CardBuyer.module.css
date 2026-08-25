@@ -52,10 +52,12 @@
   font-size: 18px;
 }
 
-.owner {
+.sellerName {
   color: #ffffff;
-  font-size: 18px;
-  text-decoration: underline;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: right;
+  font-family: 'Noto Sans KR', sans-serif;
 }
 
 /* Description */
@@ -231,9 +233,8 @@
     font-size: 16px;
   }
 
-  .owner {
-    font-size: 16px;
-    text-decoration: none;
+  .sellerName {
+    font-size: 14px;
   }
 
   /* Description Mobile */

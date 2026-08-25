@@ -16,7 +16,7 @@ import { API_BASE } from '@/lib/http/baseUrl';
 const GRADE_OPTIONS = [
   { label: 'COMMON', value: 'common' },
   { label: 'RARE', value: 'rare' },
-  { label: 'SUPER RARE', value: 'epic' }, // BE: epic
+  { label: 'SUPER RARE', value: 'superrare' },
   { label: 'LEGENDARY', value: 'legendary' },
 ];
 
@@ -189,12 +189,27 @@ export default function CreateCardForm() {
     try {
       if (!API_BASE) throw new Error('NEXT_PUBLIC_API_BASE_URL is missing');
 
+      const meRes = await fetch(`${API_BASE}/users/me`, { credentials: 'include' });
+      if (meRes.status === 401) {
+        router.push(`/auth/login?redirect=${encodeURIComponent('/create-card')}`);
+        return;
+      }
+
+      const meJson = await meRes.json().catch(() => null);
+      const creatorUserId = Number(meJson?.user?.id ?? meJson?.data?.user?.id ?? meJson?.id);
+
+      if (!Number.isInteger(creatorUserId) || creatorUserId <= 0) {
+        router.push(`/auth/login?redirect=${encodeURIComponent('/create-card')}`);
+        return;
+      }
+
       const formData = new FormData();
-      // ✅ 정석: creatorUserId 보내지 않음 (서버가 req.user로 결정)
+      // BE multer가 업로드 폴더를 정할 때 creatorUserId가 파일보다 먼저 파싱되어야 함
+      formData.append('creatorUserId', String(creatorUserId));
       formData.append('name', name.trim());
       formData.append('description', desc.trim());
       formData.append('genre', genre);
-      formData.append('grade', grade); // common / rare / epic / legendary
+      formData.append('grade', grade); // common / rare / superrare / legendary
       formData.append('minPrice', String(Number(price)));
       formData.append('totalSupply', String(Number(total)));
       formData.append('file', file);
