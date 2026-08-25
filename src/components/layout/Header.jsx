@@ -132,6 +132,8 @@ export default function Header() {
   async function handleLogout() {
     try {
       await http.post('/users/logout');
+    } catch {
+      // 서버 쿠키 삭제 실패해도 클라이언트는 로그아웃 처리
     } finally {
       setUser(null);
       setAlarms([]);
@@ -139,8 +141,13 @@ export default function Header() {
       setIsMenuOpen(false);
       setIsAlarmOpen(false);
       setIsProfileOpen(false);
-      router.replace('/');
-      router.refresh();
+      try {
+        sessionStorage.clear();
+        localStorage.removeItem('DEV_IS_LOGGED_IN');
+      } catch {
+        // ignore
+      }
+      window.location.replace('/');
     }
   }
 
