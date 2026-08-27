@@ -16,6 +16,11 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
+        hostname: 'my-favorite-photo-bf.onrender.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'be-1-yqrf.onrender.com',
         pathname: '/**',
       },
