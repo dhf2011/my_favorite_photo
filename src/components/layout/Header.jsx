@@ -39,7 +39,7 @@ export default function Header() {
      mobile menu
   ====================== */
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [menuStyle, setMenuStyle] = useState({ top: 0, left: 0 });
+  const [menuStyle, setMenuStyle] = useState({ top: 0, left: 12, width: 280 });
   const menuRef = useRef(null);
   const menuTriggerRef = useRef(null);
 
@@ -69,7 +69,9 @@ export default function Header() {
   useEffect(() => {
     if (!mounted || !isMenuOpen || !menuTriggerRef.current) return;
     const rect = menuTriggerRef.current.getBoundingClientRect();
-    setMenuStyle({ top: rect.bottom + 6, left: rect.left });
+    const menuWidth = Math.min(280, window.innerWidth - 24);
+    const left = Math.max(12, Math.min(rect.left, window.innerWidth - menuWidth - 12));
+    setMenuStyle({ top: rect.bottom + 8, left, width: menuWidth });
   }, [mounted, isMenuOpen]);
 
   /* ======================
@@ -120,9 +122,15 @@ export default function Header() {
     }
   }, [user, alarmLoading]);
 
+  const handleToggleMenu = () => {
+    setIsAlarmOpen(false);
+    setIsMenuOpen((v) => !v);
+  };
+
   const handleToggleAlarm = async () => {
     setIsAlarmOpen((v) => !v);
     setIsProfileOpen(false);
+    setIsMenuOpen(false);
     await fetchNotifications();
   };
 
@@ -242,7 +250,7 @@ export default function Header() {
                   </button>
 
                   {isProfileOpen && (
-                    <div className="absolute right-0 top-[calc(100%+10px)] z-[9999] rounded-[12px] overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.45)]">
+                    <div className="absolute right-0 top-[calc(100%+10px)] z-[9999] w-[260px] rounded-[12px] overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.45)]">
                       <ProfileDropdownContent
                         userName={displayName}
                         ownedPoint={Number(points) || 0}
@@ -277,8 +285,11 @@ export default function Header() {
             {user && (
               <button
                 ref={menuTriggerRef}
-                onClick={() => setIsMenuOpen((v) => !v)}
+                type="button"
+                onClick={handleToggleMenu}
                 className="rounded p-2 text-white/70 hover:bg-white/10"
+                aria-label="메뉴"
+                aria-expanded={isMenuOpen}
               >
                 <Image src="/assets/icons/ic_menu.svg" alt="" width={24} height={24} />
               </button>
@@ -311,6 +322,39 @@ export default function Header() {
       </Container>
 
       <div className="h-px w-full bg-white/20" />
+
+      {mounted &&
+        isMenuOpen &&
+        createPortal(
+          <>
+            <button
+              type="button"
+              aria-label="메뉴 닫기"
+              className="fixed inset-0 z-[9998] bg-black/50 min-[768px]:hidden"
+              onClick={() => setIsMenuOpen(false)}
+            />
+            <div
+              ref={menuRef}
+              className="fixed z-[9999] min-[768px]:hidden overflow-hidden rounded-[12px] shadow-[0_10px_30px_rgba(0,0,0,0.45)]"
+              style={{
+                top: menuStyle.top,
+                left: menuStyle.left,
+                width: menuStyle.width,
+              }}
+            >
+              <ProfileDropdownContent
+                userName={displayName}
+                ownedPoint={Number(points) || 0}
+                onLogout={handleLogout}
+                onNavigate={(href) => {
+                  setIsMenuOpen(false);
+                  router.push(href);
+                }}
+              />
+            </div>
+          </>,
+          document.body,
+        )}
     </header>
   );
 }

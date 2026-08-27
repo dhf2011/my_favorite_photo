@@ -7,6 +7,7 @@ import CardOriginal from '@/components/organisms/CardOriginal/CardOriginal';
 import CardSellingListModal from '@/components/organisms/CardSellingListModal/CardSellingListModal';
 import { http } from '@/lib/http/client';
 import { normalizeImageUrl } from '@/utils/imageUrl';
+import { toApiGrade, toDisplayGrade } from '@/utils/grade';
 import styles from './page.module.css';
 
 const LISTINGS_LIMIT = 10;
@@ -23,7 +24,7 @@ function listingToCard(item) {
 
   return {
     id: item?.listingId,
-    rarity: pc?.grade ?? 'COMMON',
+    rarity: toDisplayGrade(pc?.grade),
     category: pc?.genre ?? '풍경',
     owner: item?.sellerNickname ?? '판매자',
     description: pc?.name || pc?.title || '-',
@@ -87,7 +88,8 @@ export default function MarketplacePage() {
 
       const params = new URLSearchParams({ limit: String(LISTINGS_LIMIT), sortBy, sortOrder });
       if (cursor != null) params.set('cursor', String(cursor));
-      if (rarity && rarity !== 'all') params.set('grade', rarity);
+      const grade = toApiGrade(rarity);
+      if (grade) params.set('grade', grade);
       if (genre && genre !== 'all') params.set('genre', genre);
       if (soldout && soldout !== 'all') params.set('status', soldout);
 

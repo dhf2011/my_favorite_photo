@@ -100,6 +100,15 @@
   font-family: 'Noto Sans KR', sans-serif;
 }
 
+.optionRowSelected .optionLabel {
+  font-weight: 700;
+}
+
+.optionRowSelected .optionCount {
+  color: #efff04;
+  font-weight: 700;
+}
+
 .optionLabel {
   font-size: 16px;
   font-weight: 500;

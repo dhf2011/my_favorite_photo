@@ -81,7 +81,7 @@ export default function SubHeader({
   );
 
   const handleFilterApply = (next) => {
-    setFilters?.(next);
+    setFilters?.({ ...filters, ...next });
     setIsFilterOpen(false);
   };
 

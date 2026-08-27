@@ -3,7 +3,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import Modal from '@/components/atoms/Modal/Modal';
-import { ButtonPrimary, ButtonSecondary, ResponsiveButton } from '@/components/atoms/Button';
+import { ButtonPrimary } from '@/components/atoms/Button';
+import { toDisplayGrade } from '@/utils/grade';
 import styles from './FilterBottomSheet.module.css';
 
 const GENRE_VALUES = ['풍경', '음식', '인물', '동물'];
@@ -24,7 +25,8 @@ const RARITY_COLORS = {
 function countByGrade(cards) {
   const map = { COMMON: 0, RARE: 0, 'SUPER RARE': 0, LEGENDARY: 0 };
   cards.forEach((c) => {
-    if (map[c.rarity] !== undefined) map[c.rarity]++;
+    const grade = toDisplayGrade(c.rarity ?? c.grade);
+    if (map[grade] !== undefined) map[grade]++;
   });
   return map;
 }
@@ -70,17 +72,11 @@ export default function FilterBottomSheet({
   const genreCounts = useMemo(() => countByGenre(cards), [cards]);
   const soldCounts = useMemo(() => countSold(cards), [cards]);
 
-  const rarityToCard = {
-    common: 'COMMON',
-    rare: 'RARE',
-    superrare: 'SUPER RARE',
-    legendary: 'LEGENDARY',
-  };
   const filteredCount = useMemo(() => {
     return cards.filter((c) => {
       if (rarity !== 'all') {
-        const r = rarityToCard[rarity];
-        if (r && c.rarity !== r) return false;
+        const selected = toDisplayGrade(rarity);
+        if (toDisplayGrade(c.rarity ?? c.grade) !== selected) return false;
       }
       if (genre !== 'all' && c.category !== genre) return false;
       if (soldout === 'SOLD_OUT' && c.remaining > 0) return false;
@@ -163,7 +159,8 @@ export default function FilterBottomSheet({
               <button
                 key={opt.value}
                 type="button"
-                className={styles.optionRow}
+                className={`${styles.optionRow} ${rarity === opt.value ? styles.optionRowSelected : ''}`}
+                aria-pressed={rarity === opt.value}
                 onClick={() => setRarity(opt.value)}
               >
                 <span
@@ -182,7 +179,8 @@ export default function FilterBottomSheet({
               <button
                 key={opt.value}
                 type="button"
-                className={styles.optionRow}
+                className={`${styles.optionRow} ${genre === opt.value ? styles.optionRowSelected : ''}`}
+                aria-pressed={genre === opt.value}
                 onClick={() => setGenre(opt.value)}
               >
                 <span className={styles.optionLabel}>{opt.label}</span>
@@ -194,7 +192,8 @@ export default function FilterBottomSheet({
               <button
                 key={opt.value}
                 type="button"
-                className={styles.optionRow}
+                className={`${styles.optionRow} ${soldout === opt.value ? styles.optionRowSelected : ''}`}
+                aria-pressed={soldout === opt.value}
                 onClick={() => setSoldout(opt.value)}
               >
                 <span className={styles.optionLabel}>{opt.label}</span>
@@ -212,9 +211,14 @@ export default function FilterBottomSheet({
           >
             <Image src="/assets/icons/ic_refresh.svg" alt="초기화" width={24} height={24} />
           </button>
-          <ResponsiveButton onClick={handleApply} className={styles.applyBtn}>
+          <ButtonPrimary
+            size="m"
+            thickness="thick"
+            onClick={handleApply}
+            className={styles.applyBtn}
+          >
             {filteredCount}개 포토보기
-          </ResponsiveButton>
+          </ButtonPrimary>
         </div>
       </div>
     </Modal>

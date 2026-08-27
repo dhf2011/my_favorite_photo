@@ -2,11 +2,11 @@
 
 export default function ProfileDropdownContent({ userName, ownedPoint = 0, onLogout, onNavigate }) {
   const itemBase =
-    'block w-full text-left px-5 py-3 cursor-pointer text-[14px] font-bold leading-[1] text-white ' +
-    'hover:bg-white/5 hover:text-white focus:outline-none focus:bg-white/5';
+    'block w-full text-left px-5 py-3.5 cursor-pointer text-[14px] font-bold leading-[1] text-white ' +
+    'hover:bg-white/5 hover:text-white active:bg-white/10 focus:outline-none focus:bg-white/5';
 
   return (
-    <div className="w-[260px] bg-[#161616]">
+    <div className="w-full bg-[#161616]">
       {/* top */}
       <div className="px-5 pt-5 pb-4">
         <div className="text-[18px] font-bold leading-[1] text-white">
