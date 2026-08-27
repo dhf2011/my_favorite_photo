@@ -3,6 +3,9 @@ import './globals.css';
 export const metadata = {
   title: '최애의 포토',
   description: '개인용 디지털 사진첩 생성 플랫폼',
+  icons: {
+    icon: [{ url: '/assets/logos/logo.svg', type: 'image/svg+xml' }],
+  },
 };
 
 export default function RootLayout({ children }) {

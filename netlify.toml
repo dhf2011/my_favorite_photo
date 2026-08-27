@@ -1,5 +1,29 @@
 [build]
   command = "npm run build"
 
-[build.environment]
-  NEXT_PUBLIC_API_BASE_URL = "https://my-favorite-photo-bf.onrender.com"
+# 브라우저가 넷리파이와 같은 출처로 API를 호출해야 로그인 쿠키가 유지된다.
+# (Render로 직접 치면 3rd-party 쿠키가 막혀 /users/me 가 401이 난다)
+
+[[redirects]]
+  from = "/users/*"
+  to = "https://my-favorite-photo-bf.onrender.com/users/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://my-favorite-photo-bf.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/notifications/*"
+  to = "https://my-favorite-photo-bf.onrender.com/notifications/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/public/*"
+  to = "https://my-favorite-photo-bf.onrender.com/public/:splat"
+  status = 200
+  force = true

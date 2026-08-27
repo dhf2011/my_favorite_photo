@@ -106,8 +106,6 @@ export default function MyGallerySellingPage() {
         setLoading(true);
         setError('');
 
-        if (!API_BASE) throw new Error('NEXT_PUBLIC_API_BASE_URL is missing');
-
         const qs = new URLSearchParams();
         qs.set('limit', String(LISTINGS_LIMIT));
         qs.set('status', statusParam);

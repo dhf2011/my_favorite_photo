@@ -187,8 +187,6 @@ export default function CreateCardForm() {
     setSubmitting(true);
 
     try {
-      if (!API_BASE) throw new Error('NEXT_PUBLIC_API_BASE_URL is missing');
-
       const meRes = await fetch(`${API_BASE}/users/me`, { credentials: 'include' });
       if (meRes.status === 401) {
         router.push(`/auth/login?redirect=${encodeURIComponent('/create-card')}`);

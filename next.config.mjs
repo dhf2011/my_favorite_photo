@@ -12,6 +12,16 @@ const nextConfig = {
   outputFileTracingRoot: __dirname,
   devIndicators: false,
 
+  async rewrites() {
+    const backend = 'https://my-favorite-photo-bf.onrender.com';
+    return [
+      { source: '/users/:path*', destination: `${backend}/users/:path*` },
+      { source: '/api/:path*', destination: `${backend}/api/:path*` },
+      { source: '/notifications/:path*', destination: `${backend}/notifications/:path*` },
+      { source: '/public/:path*', destination: `${backend}/public/:path*` },
+    ];
+  },
+
   images: {
     remotePatterns: [
       {

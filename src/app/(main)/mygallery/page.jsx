@@ -81,8 +81,6 @@ export default function MyGalleryPage() {
       setLoading(true);
       setError('');
 
-      if (!API_BASE) throw new Error('NEXT_PUBLIC_API_BASE_URL is missing');
-
       const res = await fetch(`${API_BASE}/users/me/cards`, {
         method: 'GET',
         credentials: 'include',

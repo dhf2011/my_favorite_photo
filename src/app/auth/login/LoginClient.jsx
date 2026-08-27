@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { http } from '@/lib/http/client';
 
 import { InputEmail } from '@/components/molecules/InputEmail';
@@ -29,7 +29,6 @@ function validatePassword(value) {
 }
 
 export default function LoginClient() {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const [email, setEmail] = useState('test0202@naver.com');
@@ -58,7 +57,7 @@ export default function LoginClient() {
     try {
       await http.post('/users/login', { email, password });
       const redirect = searchParams.get('redirect');
-      router.push(redirect || '/marketplace');
+      window.location.assign(redirect || '/marketplace');
     } catch (err) {
       const message = err.response?.data?.message ?? '로그인에 실패했습니다.';
       setPasswordError(message);
