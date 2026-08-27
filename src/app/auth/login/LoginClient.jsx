@@ -31,8 +31,8 @@ function validatePassword(value) {
 export default function LoginClient() {
   const searchParams = useSearchParams();
 
-  const [email, setEmail] = useState('test0202@naver.com');
-  const [password, setPassword] = useState('12345678');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
