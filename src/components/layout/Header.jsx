@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation';
 import Container from '@/components/layout/Container';
 import { http } from '@/lib/http/client';
 import { formatPointNumber } from '@/utils/points';
+import { useBackendStatus } from '@/components/providers/BackendStatusProvider';
+import Skeleton from '@/components/atoms/Skeleton/Skeleton';
 
 import AlarmDropdownContent from './_components/AlarmDropdownContent';
 import ProfileDropdownContent from './_components/ProfileDropdownContent';
@@ -31,6 +33,7 @@ function formatTimeAgo(input) {
 
 export default function Header() {
   const router = useRouter();
+  const { isReady, isWaiting } = useBackendStatus();
 
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -79,6 +82,7 @@ export default function Header() {
      user fetch
   ====================== */
   useEffect(() => {
+    if (!isReady) return;
     async function fetchUser() {
       try {
         const { data } = await http.get('/users/me');
@@ -90,7 +94,7 @@ export default function Header() {
       }
     }
     fetchUser();
-  }, []);
+  }, [isReady]);
 
   /* ======================
      notifications fetch
@@ -194,6 +198,7 @@ export default function Header() {
   const displayName = user?.nickname ?? user?.email ?? '';
   const points = user?.points ?? 0;
 
+  const showAuthSkeleton = isWaiting || authLoading;
   const isAlarmOn = unreadCount > 0;
   const alarmIconSrc = isAlarmOn ? '/assets/icons/ic_alarm_on.svg' : '/assets/icons/ic_alarm.svg';
 
@@ -207,8 +212,12 @@ export default function Header() {
           </Link>
 
           <div className="flex items-center gap-4 text-sm text-white/80">
-            {authLoading ? (
-              <span className="text-white/50">...</span>
+            {showAuthSkeleton ? (
+              <div className="flex items-center gap-3" aria-hidden>
+                <Skeleton style={{ width: 64, height: 16 }} />
+                <Skeleton style={{ width: 24, height: 24, borderRadius: 999 }} />
+                <Skeleton style={{ width: 72, height: 16 }} />
+              </div>
             ) : user ? (
               <>
                 <div className="flex items-center gap-1">
@@ -283,7 +292,10 @@ export default function Header() {
         {/* ================= Mobile ================= */}
         <div className="flex w-full min-[768px]:hidden items-center gap-2 px-2">
           <div className="flex flex-1 justify-start">
-            {user && (
+            {showAuthSkeleton ? (
+              <Skeleton style={{ width: 24, height: 24 }} />
+            ) : (
+              user && (
               <button
                 ref={menuTriggerRef}
                 type="button"
@@ -294,6 +306,7 @@ export default function Header() {
               >
                 <Image src="/assets/icons/ic_menu.svg" alt="" width={24} height={24} />
               </button>
+              )
             )}
           </div>
 
@@ -302,7 +315,10 @@ export default function Header() {
           </Link>
 
           <div className="flex flex-1 justify-end">
-            {user && (
+            {showAuthSkeleton ? (
+              <Skeleton style={{ width: 24, height: 24 }} />
+            ) : (
+              user && (
               <div ref={alarmWrapRefMobile} className="relative">
                 <button onClick={handleToggleAlarm} className="relative p-2">
                   <Image src={alarmIconSrc} alt="알림" width={24} height={24} />
@@ -317,6 +333,7 @@ export default function Header() {
                   </div>
                 )}
               </div>
+              )
             )}
           </div>
         </div>

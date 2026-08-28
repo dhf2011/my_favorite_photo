@@ -1,4 +1,5 @@
 import './globals.css';
+import { BackendStatusProvider } from '@/components/providers/BackendStatusProvider';
 
 export const metadata = {
   title: '최애의 포토',
@@ -11,7 +12,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="ko">
-      <body className="bg-neutral-950 text-white">{children}</body>
+      <body className="bg-neutral-950 text-white">
+        <BackendStatusProvider>{children}</BackendStatusProvider>
+      </body>
     </html>
   );
 }

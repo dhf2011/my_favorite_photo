@@ -5,6 +5,12 @@
 # (Render로 직접 치면 3rd-party 쿠키가 막혀 /users/me 가 401이 난다)
 
 [[redirects]]
+  from = "/health"
+  to = "https://my-favorite-photo-bf.onrender.com/health"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/users/*"
   to = "https://my-favorite-photo-bf.onrender.com/users/:splat"
   status = 200

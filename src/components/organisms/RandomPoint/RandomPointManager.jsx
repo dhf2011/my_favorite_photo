@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import RandomPointSelectModal from './RandomPointSelectModal';
 import RandomPointResultModal from './RandomPointResultModal';
 import { apiUrl } from '@/lib/http/baseUrl'; // 위에서 만든 유틸
+import { useBackendStatus } from '@/components/providers/BackendStatusProvider';
 
 const COOLDOWN_SECONDS = 60 * 60;
 const POLL_MS = 30 * 1000;
@@ -27,6 +28,7 @@ function parseDateSafe(v) {
 }
 
 export default function RandomPointManager() {
+  const { isReady } = useBackendStatus();
   // TODO: 로그인 붙으면 userId 제거하고 서버에서 req.user로 처리
   const userId = 1;
 
@@ -83,10 +85,11 @@ export default function RandomPointManager() {
   }, [userId]);
 
   useEffect(() => {
+    if (!isReady) return;
     refreshStatus();
     const t = setInterval(refreshStatus, POLL_MS);
     return () => clearInterval(t);
-  }, [refreshStatus]);
+  }, [isReady, refreshStatus]);
 
   useEffect(() => {
     if (!canDraw) return;

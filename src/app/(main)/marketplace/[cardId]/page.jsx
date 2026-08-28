@@ -14,6 +14,9 @@ import ExchangeFormContent from './exchange/ExchangeFormContent';
 import { http } from '@/lib/http/client';
 import { normalizeImageUrl } from '@/utils/imageUrl';
 import { formatPointNumber, formatPoints, parsePointNumber } from '@/utils/points';
+import { useBackendStatus } from '@/components/providers/BackendStatusProvider';
+import CardDetailSkeleton from '@/components/organisms/CardDetailSkeleton/CardDetailSkeleton';
+import BackendWakeNotice from '@/components/organisms/BackendWakeNotice/BackendWakeNotice';
 import { sampleCards } from '../sampleCards';
 import styles from './page.module.css';
 import purchaseModalStyles from './PurchaseConfirmModal.module.css';
@@ -82,6 +85,7 @@ export default function MarketplaceCardPurchasePage() {
   const [isExchangeModalOpen, setIsExchangeModalOpen] = useState(false);
   const [exchangeModalCard, setExchangeModalCard] = useState(null);
 
+  const { isReady, isWaiting } = useBackendStatus();
   const [listing, setListing] = useState(null);
   const [listingLoading, setListingLoading] = useState(true);
   const [listingError, setListingError] = useState(null);
@@ -162,10 +166,12 @@ export default function MarketplaceCardPurchasePage() {
   }, [cardId, cardIdNum]);
 
   useEffect(() => {
+    if (!isReady) return;
     fetchListing();
-  }, [fetchListing]);
+  }, [isReady, fetchListing]);
 
   useEffect(() => {
+    if (!isReady) return;
     async function fetchCurrentUser() {
       try {
         const { data } = await http.get('/users/me');
@@ -175,7 +181,7 @@ export default function MarketplaceCardPurchasePage() {
       }
     }
     fetchCurrentUser();
-  }, []);
+  }, [isReady]);
 
   const cardData = useMemo(() => {
     if (listing) return listingToCardData(listing);
@@ -365,12 +371,10 @@ export default function MarketplaceCardPurchasePage() {
       </div>
 
       <div className={styles.contentWrapper}>
-        {listingLoading ? (
-          <div
-            className={styles.desktopLayout}
-            style={{ width: '100%', maxWidth: '1280px', padding: '40px', color: '#fff' }}
-          >
-            로딩 중...
+        {isWaiting || listingLoading ? (
+          <div className={styles.desktopLayout} style={{ width: '100%', maxWidth: '1280px' }}>
+            <BackendWakeNotice />
+            <CardDetailSkeleton />
           </div>
         ) : listingError ? (
           <div

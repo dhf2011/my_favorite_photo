@@ -5,6 +5,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { http } from '@/lib/http/client';
+import { useBackendStatus } from '@/components/providers/BackendStatusProvider';
+import BackendWakeNotice from '@/components/organisms/BackendWakeNotice/BackendWakeNotice';
 
 import { InputEmail } from '@/components/molecules/InputEmail';
 import { InputPassword } from '@/components/molecules/InputPassword';
@@ -30,6 +32,7 @@ function validatePassword(value) {
 
 export default function LoginClient() {
   const searchParams = useSearchParams();
+  const { isReady, isWaiting } = useBackendStatus();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -52,6 +55,10 @@ export default function LoginClient() {
     setEmailError(eErr || '');
     setPasswordError(pErr || '');
     if (eErr || pErr) return;
+    if (!isReady) {
+      setPasswordError('서버가 깨어나는 중입니다. 잠시 후 다시 시도해 주세요.');
+      return;
+    }
 
     setLoading(true);
     try {
@@ -104,6 +111,7 @@ export default function LoginClient() {
               placeholder="이메일을 입력해 주세요"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              disabled={isWaiting}
             />
             {emailError && (
               <p className="mt-1.5 text-[13px] leading-[1.3] text-red-500">{emailError}</p>
@@ -117,6 +125,7 @@ export default function LoginClient() {
               placeholder="비밀번호를 입력해 주세요"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={isWaiting}
             />
             {passwordError && (
               <p className="mt-1.5 text-[13px] leading-[1.3] text-red-500">{passwordError}</p>
@@ -124,9 +133,10 @@ export default function LoginClient() {
           </div>
 
           {/* 로그인 버튼 */}
+          <BackendWakeNotice />
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || isWaiting}
             className="
     h-[55px] w-full rounded-[2px]
     border-2 border-[#efff04] bg-[#efff04]
@@ -138,7 +148,7 @@ export default function LoginClient() {
     mt-2
   "
           >
-            {loading ? '로그인 중...' : '로그인'}
+            {isWaiting ? '서버 준비 중...' : loading ? '로그인 중...' : '로그인'}
           </button>
 
           {/* 하단 문구 */}

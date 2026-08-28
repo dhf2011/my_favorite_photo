@@ -15,6 +15,7 @@ const nextConfig = {
   async rewrites() {
     const backend = 'https://my-favorite-photo-bf.onrender.com';
     return [
+      { source: '/health', destination: `${backend}/health` },
       { source: '/users/:path*', destination: `${backend}/users/:path*` },
       { source: '/api/:path*', destination: `${backend}/api/:path*` },
       { source: '/notifications/:path*', destination: `${backend}/notifications/:path*` },

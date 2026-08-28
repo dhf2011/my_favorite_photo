@@ -10,9 +10,12 @@ import { InputPassword } from '@/components/molecules/InputPassword';
 import InputLabel from '@/components/molecules/InputLabel/InputLabel';
 import ButtonPrimary from '@/components/atoms/Button/ButtonPrimary';
 import { http } from '@/lib/http/client';
+import { useBackendStatus } from '@/components/providers/BackendStatusProvider';
+import BackendWakeNotice from '@/components/organisms/BackendWakeNotice/BackendWakeNotice';
 
 export default function SignupPage() {
   const router = useRouter();
+  const { isReady, isWaiting } = useBackendStatus();
 
   const [email, setEmail] = useState('');
   const [nickname, setNickname] = useState('');
@@ -35,6 +38,10 @@ export default function SignupPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canSubmit || submitting) return;
+    if (!isReady) {
+      setErrorMsg('서버가 깨어나는 중입니다. 잠시 후 다시 시도해 주세요.');
+      return;
+    }
 
     setSubmitting(true);
     setErrorMsg('');
@@ -136,14 +143,15 @@ export default function SignupPage() {
             )}
 
             {/* submit */}
+            <BackendWakeNotice />
             <div className="mt-10 mb-10 w-full max-w-[520px]">
               <ButtonPrimary
                 type="submit"
                 size="l"
-                disabled={!canSubmit || submitting}
+                disabled={!canSubmit || submitting || isWaiting}
                 className="h-[60px] w-full"
               >
-                {submitting ? '가입 중...' : '가입하기'}
+                {isWaiting ? '서버 준비 중...' : submitting ? '가입 중...' : '가입하기'}
               </ButtonPrimary>
             </div>
 

@@ -12,6 +12,8 @@ import SubHeaderExchange from '@/components/organisms/SubHeader/SubHeaderExchang
 import { http } from '@/lib/http/client';
 import { normalizeImageUrl } from '@/utils/imageUrl';
 import { formatPoints } from '@/utils/points';
+import { useBackendStatus } from '@/components/providers/BackendStatusProvider';
+import CardGridSkeleton from '@/components/organisms/CardGridSkeleton/CardGridSkeleton';
 import styles from './CardSellingListModal.module.css';
 
 const STORAGE_SELL_CARD = 'marketplace_sell_card';
@@ -68,6 +70,7 @@ export default function CardSellingListModal({
   mode = 'sell',
   sellerUserId,
 }) {
+  const { isReady } = useBackendStatus();
   const [search, setSearch] = useState('');
   const [grade, setGrade] = useState('all');
   const [genre, setGenre] = useState('all');
@@ -152,9 +155,9 @@ export default function CardSellingListModal({
   }, []);
 
   useEffect(() => {
-    if (open) fetchMyCards();
+    if (open && isReady) fetchMyCards();
     if (!open) setSellingList([]);
-  }, [open, fetchMyCards]);
+  }, [open, isReady, fetchMyCards]);
 
   const gradeOptions = [
     { value: 'all', label: '등급' },
@@ -326,15 +329,17 @@ export default function CardSellingListModal({
             )}
 
             {/* 보유 카드(user_card) 로딩/에러 */}
-            {sellingListLoading && (
-              <div className={styles.cardsGrid}>보유 카드를 불러오는 중...</div>
+            {(sellingListLoading || (open && !isReady)) && (
+              <div className={styles.cardsGrid}>
+                <CardGridSkeleton count={4} />
+              </div>
             )}
-            {sellingListError && !sellingListLoading && (
+            {sellingListError && !sellingListLoading && isReady && (
               <div className={styles.cardsGrid}>{sellingListError}</div>
             )}
 
             {/* MyCard Grid */}
-            {!sellingListLoading && !sellingListError && (
+            {!sellingListLoading && !sellingListError && isReady && (
               <div className={styles.cardsGrid}>
                 {filteredCards.length === 0 ? (
                   <div className={styles.emptyState}>판매할 수 있는 포토카드가 없습니다.</div>

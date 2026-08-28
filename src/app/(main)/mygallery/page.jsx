@@ -13,6 +13,9 @@ import { useMyGalleryCount } from './_components/MyGalleryCountContext';
 import { API_BASE } from '@/lib/http/baseUrl';
 import { normalizeImageUrl } from '@/utils/imageUrl';
 import { formatPoints } from '@/utils/points';
+import { useBackendStatus } from '@/components/providers/BackendStatusProvider';
+import CardGridSkeleton from '@/components/organisms/CardGridSkeleton/CardGridSkeleton';
+import BackendWakeNotice from '@/components/organisms/BackendWakeNotice/BackendWakeNotice';
 
 import styles from './page.module.css';
 
@@ -65,6 +68,7 @@ export default function MyGalleryPage() {
   const bp = useBreakpoint();
   const isMobile = bp === 'sm';
 
+  const { isReady, isWaiting } = useBackendStatus();
   const { setOwnedCount, setTitle } = useMyGalleryCount();
 
   const [search, setSearch] = useState('');
@@ -73,7 +77,7 @@ export default function MyGalleryPage() {
   const [page, setPage] = useState(1);
 
   const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   /** ✅ 내 카드 목록 */
@@ -113,8 +117,9 @@ export default function MyGalleryPage() {
   }, [setOwnedCount]);
 
   useEffect(() => {
+    if (!isReady) return;
     fetchMyCards();
-  }, [fetchMyCards]);
+  }, [isReady, fetchMyCards]);
 
   // 타이틀 고정
   useEffect(() => {
@@ -170,16 +175,18 @@ export default function MyGalleryPage() {
         onChangeGenre={setGenre}
       />
 
-      {error && (
+      {error && !isWaiting && (
         <div className="mt-6 rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
           {error}
         </div>
       )}
 
-      {loading && <div className="mt-6 text-sm text-white/60">불러오는 중...</div>}
+      <BackendWakeNotice className="mt-6" />
 
       <div className={styles.cardGrid}>
-        {!loading && pagedItems.length === 0 ? (
+        {isWaiting || loading ? (
+          <CardGridSkeleton count={6} />
+        ) : pagedItems.length === 0 ? (
           <div className="col-span-full mt-10 text-center text-white/60">
             보유한 포토카드가 없습니다.
           </div>

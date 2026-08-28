@@ -9,6 +9,9 @@ import { http } from '@/lib/http/client';
 import { normalizeImageUrl } from '@/utils/imageUrl';
 import { toApiGrade, toDisplayGrade } from '@/utils/grade';
 import { formatPoints } from '@/utils/points';
+import { useBackendStatus } from '@/components/providers/BackendStatusProvider';
+import CardGridSkeleton from '@/components/organisms/CardGridSkeleton/CardGridSkeleton';
+import BackendWakeNotice from '@/components/organisms/BackendWakeNotice/BackendWakeNotice';
 import styles from './page.module.css';
 
 const LISTINGS_LIMIT = 10;
@@ -46,6 +49,7 @@ function sortToParams(sort) {
 
 export default function MarketplacePage() {
   const router = useRouter();
+  const { isReady, isWaiting } = useBackendStatus();
   const [currentUser, setCurrentUser] = useState(null);
   const [isSellingModalOpen, setIsSellingModalOpen] = useState(false);
   const [filters, setFilters] = useState({
@@ -63,6 +67,7 @@ export default function MarketplacePage() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!isReady) return;
     async function fetchUser() {
       try {
         const { data } = await http.get('/users/me');
@@ -75,7 +80,7 @@ export default function MarketplacePage() {
       }
     }
     fetchUser();
-  }, [router]);
+  }, [isReady, router]);
 
   const fetchListings = useCallback(async (cursor = null, append = false, currentFilters) => {
     const isLoadMore = append && cursor != null;
@@ -111,10 +116,11 @@ export default function MarketplacePage() {
     }
   }, []);
 
-  // 필터 변경 시 처음부터 다시 조회
+  // 필터 변경 시 처음부터 다시 조회 (서버가 깨어난 뒤에만)
   useEffect(() => {
+    if (!isReady) return;
     fetchListings(null, false, filters);
-  }, [filters, fetchListings]);
+  }, [isReady, filters, fetchListings]);
 
   const hasMore = nextCursor != null;
 
@@ -149,25 +155,35 @@ export default function MarketplacePage() {
       />
 
       <div className={`mx-auto w-full max-w-[1280px] px-5 py-10 ${styles.listWrapper}`}>
+        <BackendWakeNotice />
+        {error && !isWaiting && !loading && (
+          <p className="mb-4 text-center text-sm text-red-300">{error}</p>
+        )}
         <div className={styles.cardGrid}>
-          {listings.map((card) => (
-            <CardOriginal
-              key={card.id}
-              rarity={card.rarity}
-              category={card.category}
-              owner={card.owner}
-              description={card.description}
-              price={card.price}
-              remaining={card.remaining}
-              outof={card.outof}
-              imageSrc={card.imageSrc}
-              onClick={() => router.push(`/marketplace/${card.id}`)}
-              detailHref={`/marketplace/${card.id}`}
-            />
-          ))}
+          {isWaiting || loading ? (
+            <CardGridSkeleton count={6} />
+          ) : listings.length === 0 ? (
+            <div className={styles.emptyState}>등록된 포토카드가 없습니다.</div>
+          ) : (
+            listings.map((card) => (
+              <CardOriginal
+                key={card.id}
+                rarity={card.rarity}
+                category={card.category}
+                owner={card.owner}
+                description={card.description}
+                price={card.price}
+                remaining={card.remaining}
+                outof={card.outof}
+                imageSrc={card.imageSrc}
+                onClick={() => router.push(`/marketplace/${card.id}`)}
+                detailHref={`/marketplace/${card.id}`}
+              />
+            ))
+          )}
         </div>
 
-        {hasMore && <div ref={loadMoreRef} className={styles.sentinel} />}
+        {!isWaiting && !loading && hasMore && <div ref={loadMoreRef} className={styles.sentinel} />}
       </div>
 
       <CardSellingListModal
