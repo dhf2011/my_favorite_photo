@@ -257,6 +257,7 @@ export default function CreateCardForm() {
     <>
       <form
         onSubmit={handleSubmit}
+        noValidate
         className="mx-auto mt-12 max-w-[520px] flex flex-col gap-20 pb-[250px]"
       >
         <div ref={refs.name}>
@@ -312,7 +313,6 @@ export default function CreateCardForm() {
             <Input
               type="text"
               inputMode="numeric"
-              pattern="[0-9]*"
               placeholder="가격을 입력해 주세요"
               value={price}
               onChange={(e) => setPrice(formatPointInput(e.target.value))}
