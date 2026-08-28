@@ -167,7 +167,7 @@ export default function CreateCardForm() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e?.preventDefault?.();
 
     setTouched({
       name: true,
@@ -318,7 +318,8 @@ export default function CreateCardForm() {
           <FormField label="가격">
             <Input
               type="text"
-              inputMode="decimal"
+              inputMode="text"
+              autoComplete="off"
               placeholder="가격을 입력해 주세요"
               value={formatPointInput(price)}
               onChange={(e) => setPrice(onlyDigits(e.target.value))}
@@ -334,7 +335,7 @@ export default function CreateCardForm() {
             <Input
               type="text"
               inputMode="numeric"
-              pattern="[0-9]*"
+              autoComplete="off"
               placeholder="총 발행량을 입력해 주세요"
               value={total}
               onChange={(e) => setTotal(onlyDigits(e.target.value))}
@@ -421,11 +422,13 @@ export default function CreateCardForm() {
 
         <div className="pt-2">
           <ButtonPrimary
-            type="submit"
+            type="button"
+            formNoValidate
             size="l"
             thickness="thin"
             fullWidth
             disabled={!isValid || submitting}
+            onClick={handleSubmit}
             className={
               !isValid || submitting
                 ? '!text-gray-300 !bg-gray-600 cursor-not-allowed'
