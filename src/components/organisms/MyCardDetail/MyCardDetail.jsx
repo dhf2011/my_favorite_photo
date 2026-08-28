@@ -6,6 +6,7 @@ import InputLabel from '../../molecules/InputLabel/InputLabel';
 import { ButtonPrimary, ButtonSecondary, ResponsiveButton } from '@/components/atoms/Button';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
+import { formatPointInput, parsePointNumber } from '@/utils/points';
 
 export default function MyCardDetail({
   rarity = 'COMMON',
@@ -18,7 +19,9 @@ export default function MyCardDetail({
   onPriceChange,
 }) {
   const [quantity, setQuantity] = useState(initialQuantity);
-  const [priceValue, setPriceValue] = useState(price);
+  const [priceValue, setPriceValue] = useState(() =>
+    price === '' || price == null ? '' : formatPointInput(price),
+  );
   const [priceTouched, setPriceTouched] = useState(false);
 
   useEffect(() => {
@@ -26,7 +29,7 @@ export default function MyCardDetail({
   }, [initialQuantity]);
 
   useEffect(() => {
-    setPriceValue(price);
+    setPriceValue(price === '' || price == null ? '' : formatPointInput(price));
   }, [price]);
 
   const isSingleCard = maxQuantity <= 1;
@@ -48,7 +51,7 @@ export default function MyCardDetail({
   };
 
   const handlePriceChange = (e) => {
-    const newPrice = e.target.value;
+    const newPrice = formatPointInput(e.target.value);
     setPriceValue(newPrice);
     if (onPriceChange) onPriceChange(newPrice);
   };
@@ -57,7 +60,7 @@ export default function MyCardDetail({
     setPriceTouched(true);
   };
 
-  const parsedPrice = Number(String(priceValue || '').replace(/\D/g, '')) || 0;
+  const parsedPrice = parsePointNumber(priceValue) || 0;
   const priceInvalid = priceTouched && (String(priceValue || '').trim() === '' || parsedPrice <= 0);
 
   return (

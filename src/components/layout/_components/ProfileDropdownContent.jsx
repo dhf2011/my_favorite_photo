@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPoints } from '@/utils/points';
+
 export default function ProfileDropdownContent({ userName, ownedPoint = 0, onLogout, onNavigate }) {
   const itemBase =
     'block w-full text-left px-5 py-3.5 cursor-pointer text-[14px] font-bold leading-[1] text-white ' +
@@ -16,7 +18,7 @@ export default function ProfileDropdownContent({ userName, ownedPoint = 0, onLog
         <div className="mt-4 flex items-center justify-between">
           <span className="text-[12px] font-light leading-[1] text-white/50">보유 포인트</span>
           <span className="text-[12px] font-normal leading-[1] text-yellow-300">
-            {Number(ownedPoint).toLocaleString()} P
+            {formatPoints(ownedPoint)}
           </span>
         </div>
       </div>

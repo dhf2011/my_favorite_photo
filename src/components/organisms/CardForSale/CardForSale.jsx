@@ -3,6 +3,7 @@ import styles from './CardForSale.module.css';
 import Image from 'next/image';
 import Label from '../../atoms/Label/Label';
 import PhotoStatus from '../../atoms/PhotoStatus/PhotoStatus';
+import { withPointCommas } from '@/utils/points';
 // import logo from '../../../../public/assets/icons/logos/logo.svg';
 // import photoCardSoldout from '../../../../public/assets/products/photo-card-soldout.svg';
 
@@ -43,7 +44,7 @@ export default function CardForSale({ rarity, category, owner, description, pric
         <div className={styles.infoSection}>
           <div className={styles.infoRow}>
             <Label className={styles.infoLabel}>가격</Label>
-            <Label className={styles.infoValue}>{price}</Label>
+            <Label className={styles.infoValue}>{withPointCommas(price)}</Label>
           </div>
           <div className={styles.infoRow}>
             <Label className={styles.infoLabel}>잔여</Label>

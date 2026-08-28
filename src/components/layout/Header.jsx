@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Container from '@/components/layout/Container';
 import { http } from '@/lib/http/client';
+import { formatPointNumber } from '@/utils/points';
 
 import AlarmDropdownContent from './_components/AlarmDropdownContent';
 import ProfileDropdownContent from './_components/ProfileDropdownContent';
@@ -211,7 +212,7 @@ export default function Header() {
             ) : user ? (
               <>
                 <div className="flex items-center gap-1">
-                  <span>{Number(points).toLocaleString()}</span>
+                  <span>{formatPointNumber(points)}</span>
                   <span>P</span>
                 </div>
 

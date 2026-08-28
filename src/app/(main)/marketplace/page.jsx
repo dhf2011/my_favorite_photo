@@ -8,6 +8,7 @@ import CardSellingListModal from '@/components/organisms/CardSellingListModal/Ca
 import { http } from '@/lib/http/client';
 import { normalizeImageUrl } from '@/utils/imageUrl';
 import { toApiGrade, toDisplayGrade } from '@/utils/grade';
+import { formatPoints } from '@/utils/points';
 import styles from './page.module.css';
 
 const LISTINGS_LIMIT = 10;
@@ -28,7 +29,7 @@ function listingToCard(item) {
     category: pc?.genre ?? '풍경',
     owner: item?.sellerNickname ?? '판매자',
     description: pc?.name || pc?.title || '-',
-    price: `${pricePerUnit} P`,
+    price: formatPoints(pricePerUnit),
     remaining: quantity,
     outof: quantity,
     imageSrc,

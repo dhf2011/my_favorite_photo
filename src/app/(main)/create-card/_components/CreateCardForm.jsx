@@ -12,6 +12,7 @@ import Modal from '@/components/atoms/Modal/Modal';
 import CreateCardDropdown from './CreateCardDropdown';
 import FormField from './FormField';
 import { API_BASE } from '@/lib/http/baseUrl';
+import { formatPointInput, parsePointNumber } from '@/utils/points';
 
 const GRADE_OPTIONS = [
   { label: 'COMMON', value: 'common' },
@@ -109,7 +110,7 @@ export default function CreateCardForm() {
     if (!genre) e.genre = '장르를 선택해 주세요.';
 
     if (price === '') e.price = '가격을 입력해 주세요.';
-    else if (!/^\d+$/.test(price)) e.price = '가격은 숫자만 입력해 주세요.';
+    else if (!Number.isFinite(parsePointNumber(price))) e.price = '가격은 숫자만 입력해 주세요.';
 
     if (total === '') e.total = '총 발행량을 입력해 주세요.';
     else if (!/^\d+$/.test(total)) e.total = '총 발행량은 숫자만 입력해 주세요.';
@@ -208,7 +209,7 @@ export default function CreateCardForm() {
       formData.append('description', desc.trim());
       formData.append('genre', genre);
       formData.append('grade', grade); // common / rare / superrare / legendary
-      formData.append('minPrice', String(Number(price)));
+      formData.append('minPrice', String(parsePointNumber(price)));
       formData.append('totalSupply', String(Number(total)));
       formData.append('file', file);
 
@@ -314,7 +315,7 @@ export default function CreateCardForm() {
               pattern="[0-9]*"
               placeholder="가격을 입력해 주세요"
               value={price}
-              onChange={(e) => setPrice(onlyDigits(e.target.value))}
+              onChange={(e) => setPrice(formatPointInput(e.target.value))}
               onBlur={() => setTouched((t) => ({ ...t, price: true }))}
               className={[FIELD_CLASS, showError('price') && FIELD_ERROR].filter(Boolean).join(' ')}
             />

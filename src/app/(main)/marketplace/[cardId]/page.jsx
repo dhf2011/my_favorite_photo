@@ -13,6 +13,7 @@ import MyCardExchangeCancel from '@/components/organisms/MyCard/MyCardExchangeCa
 import ExchangeFormContent from './exchange/ExchangeFormContent';
 import { http } from '@/lib/http/client';
 import { normalizeImageUrl } from '@/utils/imageUrl';
+import { formatPointNumber, formatPoints, parsePointNumber } from '@/utils/points';
 import { sampleCards } from '../sampleCards';
 import styles from './page.module.css';
 import purchaseModalStyles from './PurchaseConfirmModal.module.css';
@@ -46,7 +47,7 @@ function listingToCardData(listing) {
   const pricePerUnit = listing?.pricePerUnit;
   const priceStr =
     pricePerUnit != null && !Number.isNaN(Number(pricePerUnit))
-      ? `${Number(pricePerUnit)} P`
+      ? formatPoints(pricePerUnit)
       : NO_DATA;
   const ownerName =
     listing?.sellerNickname ?? listing?.seller_nickname ?? listing?.ownerNickname ?? listing?.owner;
@@ -197,11 +198,8 @@ export default function MarketplaceCardPurchasePage() {
     [cardData],
   );
 
-  const priceValue = useMemo(
-    () => parseInt(String(cardData.price).replace(/\s*P.*$/, ''), 10) || 0,
-    [cardData.price],
-  );
-  const totalPrice = `${priceValue * quantity} P (${quantity}장)`;
+  const priceValue = useMemo(() => parsePointNumber(cardData.price) || 0, [cardData.price]);
+  const totalPrice = `${formatPointNumber(priceValue * quantity)} P (${quantity}장)`;
 
   const handlePurchase = () => {
     setPurchaseError(null);

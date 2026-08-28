@@ -2,6 +2,7 @@
 import styles from './MyCard.module.css';
 import Image from 'next/image';
 import Label from '../../atoms/Label/Label';
+import { withPointCommas } from '@/utils/points';
 // import logo from '../../../../public/assets/icons/logos/logo.svg';
 // import photoCardSoldout from '../../../../public/assets/products/photo-card-soldout.svg';
 
@@ -55,7 +56,7 @@ export default function MyCard({
         <div className={styles.infoSection}>
           <div className={styles.infoRow}>
             <Label className={styles.infoLabel}>가격</Label>
-            <Label className={styles.infoValue}>{price}</Label>
+            <Label className={styles.infoValue}>{withPointCommas(price)}</Label>
           </div>
           <div className={styles.infoRow}>
             <Label className={styles.infoLabel}>수량</Label>

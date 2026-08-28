@@ -3,6 +3,7 @@ import styles from './MyCardExchangeCancel.module.css';
 import Image from 'next/image';
 import Label from '../../atoms/Label/Label';
 import { ButtonPrimary } from '@/components/atoms/Button';
+import { withPointCommas } from '@/utils/points';
 
 export default function MyCardExchangeCancel({
   rarity = 'COMMON',
@@ -42,7 +43,7 @@ export default function MyCardExchangeCancel({
             <Label className={styles.separator}>|</Label>
             <Label className={styles.category}>{category}</Label>
             <Label className={styles.separator}>|</Label>
-            <Label className={styles.purchaseInfo}>{purchaseInfo}</Label>
+            <Label className={styles.purchaseInfo}>{withPointCommas(purchaseInfo)}</Label>
           </div>
           <Label className={styles.owner}>{owner}</Label>
         </div>

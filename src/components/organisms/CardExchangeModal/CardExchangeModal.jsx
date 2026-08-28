@@ -6,6 +6,7 @@ import MyCard from '@/components/organisms/MyCard/MyCard';
 import TextBox from '@/components/atoms/TextBox/TextBox';
 import { ButtonPrimary } from '@/components/atoms/Button';
 import styles from './CardExchangeModal.module.css';
+import { withPointCommas } from '@/utils/points';
 
 export default function CardExchangeModal({
   open,
@@ -27,7 +28,7 @@ export default function CardExchangeModal({
       onExchangeSuccess({
         ...exchangeCardData,
         proposalMessage: exchangeMessage,
-        purchaseInfo: `${exchangeCardData.price}에 구매`,
+        purchaseInfo: `${withPointCommas(exchangeCardData.price)}에 구매`,
       });
     }
     setExchangeMessage('');

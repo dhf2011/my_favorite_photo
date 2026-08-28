@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import styles from './CardOriginal.module.css';
 import Label from '../../atoms/Label/Label';
+import { withPointCommas } from '@/utils/points';
 
 export default function CardOriginal({
   rarity = 'COMMON',
@@ -82,7 +83,7 @@ export default function CardOriginal({
         <div className={styles.infoSection}>
           <div className={styles.infoRow}>
             <Label className={styles.infoLabel}>가격</Label>
-            <Label className={styles.infoValue}>{price}</Label>
+            <Label className={styles.infoValue}>{withPointCommas(price)}</Label>
           </div>
           <div className={styles.infoRow}>
             <Label className={styles.infoLabel}>잔여</Label>

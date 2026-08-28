@@ -12,6 +12,7 @@ import MyGalleryMobileHeader from '../_components/MyGalleryMobileHeader';
 import { useMyGalleryCount } from '../_components/MyGalleryCountContext';
 import { API_BASE } from '@/lib/http/baseUrl';
 import { normalizeImageUrl } from '@/utils/imageUrl';
+import { formatPoints } from '@/utils/points';
 
 import styles from './page.module.css';
 
@@ -80,7 +81,7 @@ export default function MyGallerySellingPage() {
         category,
         owner: sellerNickname ?? String(sellerUserId ?? ''),
         description: title,
-        price: `${pricePerUnit} P`,
+        price: formatPoints(pricePerUnit),
         remaining: quantity,
         outof: quantity,
         imageSrc,

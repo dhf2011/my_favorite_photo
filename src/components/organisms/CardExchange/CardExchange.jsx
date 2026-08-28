@@ -4,6 +4,7 @@ import originalStyles from '../CardOriginal/CardOriginal.module.css';
 import Image from 'next/image';
 import Label from '../../atoms/Label/Label';
 import { ButtonPrimary, ButtonSecondary, ResponsiveButton } from '@/components/atoms/Button';
+import { withPointCommas } from '@/utils/points';
 
 export default function CardExchange({
   title,
@@ -40,7 +41,7 @@ export default function CardExchange({
             <Label className={styles.rarity}>{rarity}</Label>
             <Label className={styles.separator}>|</Label>
             <Label className={styles.category}>{category}</Label>
-            <Label className={styles.priceInfo}>{price} 에 구매</Label>
+            <Label className={styles.priceInfo}>{withPointCommas(price)} 에 구매</Label>
           </div>
           <Label className={styles.owner}>{owner}</Label>
         </div>

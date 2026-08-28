@@ -12,6 +12,7 @@ import MyGalleryMobileHeader from './_components/MyGalleryMobileHeader';
 import { useMyGalleryCount } from './_components/MyGalleryCountContext';
 import { API_BASE } from '@/lib/http/baseUrl';
 import { normalizeImageUrl } from '@/utils/imageUrl';
+import { formatPoints } from '@/utils/points';
 
 import styles from './page.module.css';
 
@@ -52,7 +53,7 @@ function mapMyCardToCard(item) {
     category,
     owner: pc?.ownerNickname ?? pc?.ownerName ?? '',
     description: title,
-    price: `${minPrice} P`,
+    price: formatPoints(minPrice),
     remaining: quantity,
     outof: quantity,
     imageSrc,

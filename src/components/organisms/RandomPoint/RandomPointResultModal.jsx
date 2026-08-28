@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { Modal } from '@/components/atoms/Modal';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import { getRewardImage } from '@/utils/eventImages';
+import { formatPointNumber } from '@/utils/points';
 import styles from './RandomPointResultModal.module.css';
 
 export default function RandomPointResultModal({
@@ -41,7 +42,7 @@ export default function RandomPointResultModal({
         </div>
 
         <p className={styles.reward}>
-          <span className={styles.rewardAccent}>{earnedPoint}P</span> 획득!
+          <span className={styles.rewardAccent}>{formatPointNumber(earnedPoint)}P</span> 획득!
         </p>
 
         <p className={styles.timer}>

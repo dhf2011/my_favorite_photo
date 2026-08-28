@@ -8,12 +8,13 @@ import DropDown from '@/components/atoms/DropDown/DropDown';
 import TextBox from '@/components/atoms/TextBox/TextBox';
 import { ButtonPrimary, ButtonSecondary, ResponsiveButton } from '@/components/atoms/Button';
 import styles from './OpenModal.module.css';
+import { formatPointInput, parsePointNumber } from '@/utils/points';
 
 export default function OpenModal({ open, onClose, cardData, mode = 'edit', onSellSuccess }) {
   const extractPrice = (priceStr) => {
     if (!priceStr) return '';
-    const match = priceStr.match(/(\d+)/);
-    return match ? match[1] : '';
+    const n = parsePointNumber(priceStr);
+    return Number.isFinite(n) && n > 0 ? formatPointInput(n) : '';
   };
 
   const [quantity, setQuantity] = useState(cardData?.initialQuantity || 1);

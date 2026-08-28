@@ -4,6 +4,7 @@ import styles from './CardBuyer.module.css';
 import Image from 'next/image';
 import Label from '../../atoms/Label/Label';
 import { ButtonBase } from '@/components/atoms/Button';
+import { withPointCommas } from '@/utils/points';
 
 const RARITY_COLORS = {
   COMMON: '#FFD700',
@@ -83,7 +84,7 @@ export default function CardBuyer({
           )}
           <div className={styles.infoItem}>
             <Label>가격</Label>
-            <div className={styles.infoValue}>{price}</div>
+            <div className={styles.infoValue}>{withPointCommas(price)}</div>
           </div>
           <div className={styles.infoItem}>
             <Label>잔여</Label>
@@ -124,7 +125,7 @@ export default function CardBuyer({
         {/* Total Price */}
         <div className={styles.totalPriceSection}>
           <Label>총 가격</Label>
-          <div className={styles.totalPriceValue}>{totalPrice}</div>
+          <div className={styles.totalPriceValue}>{withPointCommas(totalPrice)}</div>
         </div>
 
         {/* Purchase Button */}

@@ -11,6 +11,7 @@ import CardSellingForm from '@/components/organisms/CardSellingForm/CardSellingF
 import SubHeaderExchange from '@/components/organisms/SubHeader/SubHeaderExchange';
 import { http } from '@/lib/http/client';
 import { normalizeImageUrl } from '@/utils/imageUrl';
+import { formatPoints } from '@/utils/points';
 import styles from './CardSellingListModal.module.css';
 
 const STORAGE_SELL_CARD = 'marketplace_sell_card';
@@ -38,7 +39,7 @@ function userCardRowToCard(row) {
     category: row?.genre ?? row?.photoCard?.genre ?? '풍경',
     owner: '나',
     description: name ?? row?.description ?? '-',
-    price: `${row?.min_price ?? row?.minPrice ?? row?.photoCard?.minPrice ?? 0} P`,
+    price: formatPoints(row?.min_price ?? row?.minPrice ?? row?.photoCard?.minPrice ?? 0),
     imageSrc:
       normalizeImageUrl(row?.imageUrl ?? row?.image_url ?? row?.photoCard?.imageUrl) ||
       '/assets/products/photo-card.svg',

@@ -8,6 +8,7 @@ import DropDown from '@/components/atoms/DropDown/DropDown';
 import TextBox from '@/components/atoms/TextBox/TextBox';
 import { ResponsiveButton } from '@/components/atoms/Button';
 import { http } from '@/lib/http/client';
+import { formatPointInput, parsePointNumber } from '@/utils/points';
 
 import styles from './CardSellingForm.module.css';
 
@@ -67,7 +68,7 @@ export default function CardSellingForm({ cardData, onBack, onSuccess, isInModal
       return;
     }
 
-    const pricePerUnit = Number(price?.replace(/\D/g, '') ?? 0);
+    const pricePerUnit = parsePointNumber(price);
     if (!Number.isFinite(pricePerUnit) || pricePerUnit <= 0) {
       setSubmitError('가격을 입력해 주세요.');
       return;
@@ -260,7 +261,7 @@ export default function CardSellingForm({ cardData, onBack, onSuccess, isInModal
               disabled={
                 isSubmitting ||
                 !String(price ?? '').trim() ||
-                Number(String(price ?? '').replace(/\D/g, '')) <= 0
+                !(parsePointNumber(price) > 0)
               }
             >
               {isSubmitting ? '등록 중...' : '판매하기'}
@@ -278,6 +279,6 @@ export default function CardSellingForm({ cardData, onBack, onSuccess, isInModal
 
 function extractPrice(value) {
   if (!value) return '';
-  const match = String(value).match(/\d+/);
-  return match ? match[0] : '';
+  const n = parsePointNumber(value);
+  return Number.isFinite(n) && n > 0 ? formatPointInput(n) : '';
 }

@@ -5,6 +5,7 @@ import MyCard from '@/components/organisms/MyCard/MyCard';
 import TextBox from '@/components/atoms/TextBox/TextBox';
 import { ButtonPrimary } from '@/components/atoms/Button';
 import styles from './page.module.css';
+import { withPointCommas } from '@/utils/points';
 
 /**
  * Reusable exchange form body (card title + MyCard + proposal text + buttons).
@@ -18,7 +19,7 @@ export default function ExchangeFormContent({ cardData, onCancel, onExchange }) 
     onExchange({
       ...cardData,
       proposalMessage: exchangeMessage,
-      purchaseInfo: `${cardData.price}에 구매`,
+      purchaseInfo: `${withPointCommas(cardData.price)}에 구매`,
       id: cardData.id || Date.now(),
     });
     setExchangeMessage('');

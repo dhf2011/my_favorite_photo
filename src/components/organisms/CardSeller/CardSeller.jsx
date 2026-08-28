@@ -4,6 +4,7 @@ import styles from './CardSeller.module.css';
 import Image from 'next/image';
 import Label from '../../atoms/Label/Label';
 import RefreshIcon from '../../../../public/assets/icons/ic_refresh.svg';
+import { withPointCommas } from '@/utils/points';
 
 export default function CardSeller({
   rarity,
@@ -55,7 +56,7 @@ export default function CardSeller({
         <div className={styles.infoRow}>
           <div className={styles.infoItem}>
             <label className={styles.infoItemLabel}>가격</label>
-            <div className={styles.infoValue}>{price}</div>
+            <div className={styles.infoValue}>{withPointCommas(price)}</div>
           </div>
           <div className={styles.infoItem}>
             <label className={styles.infoItemLabel}>잔여</label>
