@@ -1,9 +1,10 @@
-/** 포인트/가격 문자열·숫자에서 첫 번째 금액을 숫자로 변환 (쉼표 무시) */
+/** 포인트/가격 문자열·숫자에서 금액을 숫자로 변환 (쉼표·공백 무시) */
 export function parsePointNumber(value) {
   if (typeof value === 'number') return Number.isFinite(value) ? value : NaN;
-  const s = String(value ?? '').replace(/,/g, '');
-  const m = s.match(/-?\d+/);
-  return m ? Number(m[0]) : NaN;
+  const digits = String(value ?? '').replace(/[^\d.-]/g, '');
+  if (!digits || digits === '-' || digits === '.') return NaN;
+  const n = Number(digits);
+  return Number.isFinite(n) ? n : NaN;
 }
 
 /** 1,000 형태의 숫자 문자열 */

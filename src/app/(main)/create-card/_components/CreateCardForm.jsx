@@ -109,8 +109,8 @@ export default function CreateCardForm() {
     if (!grade) e.grade = '등급을 선택해 주세요.';
     if (!genre) e.genre = '장르를 선택해 주세요.';
 
-    if (price === '') e.price = '가격을 입력해 주세요.';
-    else if (!Number.isFinite(parsePointNumber(price))) e.price = '가격은 숫자만 입력해 주세요.';
+    if (price === '' || onlyDigits(price) === '') e.price = '가격을 입력해 주세요.';
+    else if (!(parsePointNumber(price) > 0)) e.price = '가격은 1 이상의 숫자로 입력해 주세요.';
 
     if (total === '') e.total = '총 발행량을 입력해 주세요.';
     else if (!/^\d+$/.test(total)) e.total = '총 발행량은 숫자만 입력해 주세요.';
@@ -202,6 +202,12 @@ export default function CreateCardForm() {
         return;
       }
 
+      const minPrice = parsePointNumber(price);
+      if (!Number.isFinite(minPrice) || minPrice <= 0) {
+        scrollToFirstError();
+        return;
+      }
+
       const formData = new FormData();
       // BE multer가 업로드 폴더를 정할 때 creatorUserId가 파일보다 먼저 파싱되어야 함
       formData.append('creatorUserId', String(creatorUserId));
@@ -209,7 +215,7 @@ export default function CreateCardForm() {
       formData.append('description', desc.trim());
       formData.append('genre', genre);
       formData.append('grade', grade); // common / rare / superrare / legendary
-      formData.append('minPrice', String(parsePointNumber(price)));
+      formData.append('minPrice', String(minPrice));
       formData.append('totalSupply', String(Number(total)));
       formData.append('file', file);
 
@@ -312,10 +318,10 @@ export default function CreateCardForm() {
           <FormField label="가격">
             <Input
               type="text"
-              inputMode="numeric"
+              inputMode="decimal"
               placeholder="가격을 입력해 주세요"
-              value={price}
-              onChange={(e) => setPrice(formatPointInput(e.target.value))}
+              value={formatPointInput(price)}
+              onChange={(e) => setPrice(onlyDigits(e.target.value))}
               onBlur={() => setTouched((t) => ({ ...t, price: true }))}
               className={[FIELD_CLASS, showError('price') && FIELD_ERROR].filter(Boolean).join(' ')}
             />
