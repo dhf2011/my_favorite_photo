@@ -39,7 +39,7 @@ export default function InputSearch({
             border: '1px solid rgba(255,255,255,0.4)',
             borderRadius: '2px',
             padding: '0 50px 0 16px',
-            fontSize: '14px',
+            fontSize: '16px',
             color: '#fff',
             outline: 'none',
           }}

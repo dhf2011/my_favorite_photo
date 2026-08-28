@@ -258,7 +258,7 @@ export default function CreateCardForm() {
       <form
         onSubmit={handleSubmit}
         noValidate
-        className="mx-auto mt-12 max-w-[520px] flex flex-col gap-20 pb-[250px]"
+        className="mx-auto mt-8 w-full min-w-0 max-w-[520px] box-border flex flex-col gap-10 min-[500px]:mt-12 min-[500px]:gap-20 pb-[250px]"
       >
         <div ref={refs.name}>
           <FormField label="포토카드 이름">
@@ -341,13 +341,13 @@ export default function CreateCardForm() {
 
         <div ref={refs.file}>
           <FormField label="사진 업로드">
-            <div className="flex items-center gap-3">
+            <div className="flex w-full min-w-0 items-center gap-2">
               <Input
                 type="text"
                 placeholder="사진 업로드"
                 value={file?.name ?? ''}
                 disabled
-                className={[`${FIELD_CLASS} flex-1`, showError('file') && FIELD_ERROR]
+                className={[`${FIELD_CLASS} min-w-0 flex-1`, showError('file') && FIELD_ERROR]
                   .filter(Boolean)
                   .join(' ')}
               />
@@ -364,7 +364,7 @@ export default function CreateCardForm() {
                 type="button"
                 size="s"
                 thickness="thin"
-                className={FILE_BUTTON_CLASS}
+                className={`${FILE_BUTTON_CLASS} !h-[60px] !w-auto !min-w-0 shrink-0 !px-4 whitespace-nowrap`}
                 style={{ color: '#efff04' }}
                 onClick={openFilePicker}
               >
@@ -384,6 +384,10 @@ export default function CreateCardForm() {
               onChange={setDesc}
               wrapperStyle={{ marginTop: 0 }}
               textareaStyle={{
+                width: '100%',
+                maxWidth: '100%',
+                minWidth: 0,
+                boxSizing: 'border-box',
                 minHeight: '160px',
                 fontSize: '16px',
                 fontWeight: 300,

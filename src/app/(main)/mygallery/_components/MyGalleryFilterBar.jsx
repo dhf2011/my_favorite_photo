@@ -108,7 +108,7 @@ export default function MyGalleryFilterBar({
             value={search}
             onChange={(e) => onChangeSearch(e.target.value)}
             placeholder="검색"
-            className="w-full bg-transparent outline-none text-white placeholder:text-white/40"
+            className="w-full bg-transparent outline-none text-[16px] text-white placeholder:text-white/40"
           />
           <Image src="/assets/icons/ic_search.svg" alt="검색" width={24} height={24} />
         </div>
@@ -127,7 +127,7 @@ export default function MyGalleryFilterBar({
           value={search}
           onChange={(e) => onChangeSearch(e.target.value)}
           placeholder="검색"
-          className="w-full bg-transparent outline-none text-white placeholder:text-white/40"
+          className="w-full bg-transparent outline-none text-[16px] text-white placeholder:text-white/40"
         />
         <Image src="/assets/icons/ic_search.svg" alt="검색" width={24} height={24} />
       </div>
