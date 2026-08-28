@@ -15,6 +15,7 @@ import { http } from '@/lib/http/client';
 import { normalizeImageUrl } from '@/utils/imageUrl';
 import { formatPointNumber, formatPoints, parsePointNumber } from '@/utils/points';
 import { useBackendStatus } from '@/components/providers/BackendStatusProvider';
+import { requestUserRefresh } from '@/lib/auth/userRefresh';
 import CardDetailSkeleton from '@/components/organisms/CardDetailSkeleton/CardDetailSkeleton';
 import BackendWakeNotice from '@/components/organisms/BackendWakeNotice/BackendWakeNotice';
 import { sampleCards } from '../sampleCards';
@@ -239,6 +240,7 @@ export default function MarketplaceCardPurchasePage() {
       if (res.data?.ok && res.data?.data) {
         setIsPurchaseModalOpen(false);
         setQuantity(1);
+        requestUserRefresh();
         router.push('/mygallery');
       } else {
         setPurchaseError(res.data?.error ?? '구매 처리에 실패했습니다.');

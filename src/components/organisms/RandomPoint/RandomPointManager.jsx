@@ -3,14 +3,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import RandomPointSelectModal from './RandomPointSelectModal';
 import RandomPointResultModal from './RandomPointResultModal';
-import { apiUrl } from '@/lib/http/baseUrl'; // 위에서 만든 유틸
+import { http } from '@/lib/http/client';
 import { useBackendStatus } from '@/components/providers/BackendStatusProvider';
+import { requestUserRefresh } from '@/lib/auth/userRefresh';
 
 const COOLDOWN_SECONDS = 60 * 60;
 const POLL_MS = 30 * 1000;
-
-const POINT_DRAW_PATH = '/api/point-box-draws/draw';
-const POINT_HISTORY_PATH = '/api/point-box-draws/draw-history';
 
 function pad2(n) {
   return String(n).padStart(2, '0');
@@ -29,9 +27,8 @@ function parseDateSafe(v) {
 
 export default function RandomPointManager() {
   const { isReady } = useBackendStatus();
-  // TODO: 로그인 붙으면 userId 제거하고 서버에서 req.user로 처리
-  const userId = 1;
 
+  const [userId, setUserId] = useState(null);
   const [selectOpen, setSelectOpen] = useState(false);
   const [resultOpen, setResultOpen] = useState(false);
 
@@ -42,7 +39,7 @@ export default function RandomPointManager() {
   const lastAutoOpenKeyRef = useRef(null);
 
   const timeText = useMemo(() => formatRemain(remainSeconds), [remainSeconds]);
-  const canDraw = remainSeconds <= 0;
+  const canDraw = userId != null && remainSeconds <= 0;
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -51,15 +48,29 @@ export default function RandomPointManager() {
     return () => clearInterval(t);
   }, []);
 
-  const refreshStatus = useCallback(async () => {
+  const refreshAuth = useCallback(async () => {
     try {
-      const qs = new URLSearchParams({ userId: String(userId), limit: '1', offset: '0' });
-      const url = `${apiUrl(POINT_HISTORY_PATH)}?${qs.toString()}`;
+      const { data } = await http.get('/users/me');
+      const id = Number(data?.user?.id);
+      if (Number.isInteger(id) && id > 0) {
+        setUserId(id);
+        return id;
+      }
+      setUserId(null);
+      return null;
+    } catch {
+      setUserId(null);
+      return null;
+    }
+  }, []);
 
-      const res = await fetch(url, { credentials: 'include' });
-      if (!res.ok) throw new Error(`status HTTP ${res.status}`);
-
-      const json = await res.json();
+  const refreshStatus = useCallback(async (authedUserId) => {
+    const id = authedUserId ?? userId;
+    if (id == null) return;
+    try {
+      const { data: json } = await http.get('/api/point-box-draws/draw-history', {
+        params: { userId: id, limit: 1, offset: 0 },
+      });
       if (!json?.ok) throw new Error('status ok:false');
 
       const raw = json.data;
@@ -86,10 +97,25 @@ export default function RandomPointManager() {
 
   useEffect(() => {
     if (!isReady) return;
-    refreshStatus();
-    const t = setInterval(refreshStatus, POLL_MS);
-    return () => clearInterval(t);
-  }, [isReady, refreshStatus]);
+    let cancelled = false;
+
+    (async () => {
+      const id = await refreshAuth();
+      if (cancelled || id == null) return;
+      await refreshStatus(id);
+    })();
+
+    const t = setInterval(async () => {
+      const id = await refreshAuth();
+      if (!id) return;
+      await refreshStatus(id);
+    }, POLL_MS);
+
+    return () => {
+      cancelled = true;
+      clearInterval(t);
+    };
+  }, [isReady, refreshAuth, refreshStatus]);
 
   useEffect(() => {
     if (!canDraw) return;
@@ -103,38 +129,32 @@ export default function RandomPointManager() {
     setSelectOpen(true);
   }, [canDraw, userId]);
 
-  // ✅ 선택 박스 id도 받아서 보내도록
   const draw = useCallback(
     async (boxId) => {
+      if (userId == null) return { ok: false, reason: 'UNAUTHENTICATED' };
       setLoadingDraw(true);
       try {
-        const url = apiUrl(POINT_DRAW_PATH);
-
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ userId, boxId }),
-        });
-
-        if (res.status === 429) {
-          await refreshStatus();
-          return { ok: false, reason: 'COOLDOWN' };
-        }
-        if (!res.ok) throw new Error(`draw HTTP ${res.status}`);
-
-        const json = await res.json();
+        const { data: json } = await http.post('/api/point-box-draws/draw', { userId, boxId });
         if (!json?.ok) throw new Error('draw ok:false');
 
         const data = json.data ?? json;
         const earned = Number(data.earnedPoints ?? data.earnedPoint ?? 0) || 0;
+        const newBalance = Number(data.newBalance);
 
         setEarnedPoint(earned);
         setSelectOpen(false);
         setResultOpen(true);
 
         setRemainSeconds(COOLDOWN_SECONDS);
+        requestUserRefresh(Number.isFinite(newBalance) ? { points: newBalance } : {});
         return { ok: true };
+      } catch (err) {
+        const status = err?.response?.status;
+        if (status === 429) {
+          await refreshStatus(userId);
+          return { ok: false, reason: 'COOLDOWN' };
+        }
+        return { ok: false, reason: 'ERROR' };
       } finally {
         setLoadingDraw(false);
       }

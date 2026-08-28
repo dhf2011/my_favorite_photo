@@ -9,6 +9,7 @@ import Container from '@/components/layout/Container';
 import { http } from '@/lib/http/client';
 import { formatPointNumber } from '@/utils/points';
 import { useBackendStatus } from '@/components/providers/BackendStatusProvider';
+import { USER_REFRESH_EVENT } from '@/lib/auth/userRefresh';
 import Skeleton from '@/components/atoms/Skeleton/Skeleton';
 
 import AlarmDropdownContent from './_components/AlarmDropdownContent';
@@ -81,20 +82,34 @@ export default function Header() {
   /* ======================
      user fetch
   ====================== */
+  const fetchUser = useCallback(async ({ silent = false } = {}) => {
+    if (!silent) setAuthLoading(true);
+    try {
+      const { data } = await http.get('/users/me');
+      setUser(data?.user ?? null);
+    } catch {
+      if (!silent) setUser(null);
+    } finally {
+      setAuthLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (!isReady) return;
-    async function fetchUser() {
-      try {
-        const { data } = await http.get('/users/me');
-        setUser(data?.user ?? null);
-      } catch {
-        setUser(null);
-      } finally {
-        setAuthLoading(false);
-      }
-    }
     fetchUser();
-  }, [isReady]);
+  }, [isReady, fetchUser]);
+
+  useEffect(() => {
+    function onUserRefresh(e) {
+      const nextPoints = e?.detail?.points;
+      if (nextPoints != null) {
+        setUser((prev) => (prev ? { ...prev, points: nextPoints } : prev));
+      }
+      fetchUser({ silent: true });
+    }
+    window.addEventListener(USER_REFRESH_EVENT, onUserRefresh);
+    return () => window.removeEventListener(USER_REFRESH_EVENT, onUserRefresh);
+  }, [fetchUser]);
 
   /* ======================
      notifications fetch
